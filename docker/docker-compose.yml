@@ -10,6 +10,16 @@ services:
     env_file:
       - ../.env
 
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "2345:80"
+    env_file:
+      - ../.env
+    depends_on:
+      - database
+
   server_app:
     build:
       context: ../
@@ -21,3 +31,5 @@ services:
       - "5000:5000"
     env_file:
       - ../.env
+    depends_on:
+      - database
