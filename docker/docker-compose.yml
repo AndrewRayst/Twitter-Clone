@@ -1,9 +1,22 @@
-version: "3.1"
+version: "3.9"
 services:
+  database:
+    image: postgres:16
+    restart: always
+    volumes:
+      - ../database_data/:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env
+
   server_app:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    restart: always
+    volumes:
+      - ../logs/:/logs
     ports:
       - "5000:5000"
     env_file:
