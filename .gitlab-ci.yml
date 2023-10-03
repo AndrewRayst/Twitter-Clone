@@ -12,11 +12,7 @@ stages:
 before_script:
   - pip install poetry
   - poetry install
-
-tests:
-  stage: "tests"
-  script:
-    - pytest tests/
+  - poetry shell
 
 mypy:
   stage: "linters"
@@ -37,3 +33,8 @@ flake8:
   stage: "linters"
   script:
     - flake8 src/
+
+tests:
+  stage: "tests"
+  script:
+    - pytest tests/
