@@ -1,0 +1,39 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+image: python:3.10
+
+stages:
+  - "tests"
+  - "linters"
+
+before_script:
+  - pip install poetry
+  - poetry install
+
+tests:
+  stage: "tests"
+  script:
+    - pytest tests/
+
+mypy:
+  stage: "linters"
+  script:
+    - mypy src/
+
+isort:
+  stage: "linters"
+  script:
+    - isort --check-only src/
+
+black:
+  stage: "linters"
+  script:
+    - black --check --diff src/
+
+flake8:
+  stage: "linters"
+  script:
+    - flake8 src/
