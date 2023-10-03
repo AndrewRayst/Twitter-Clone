@@ -13,27 +13,27 @@ before_script:
   - pip install poetry
   - poetry install
 
-tests:
-  stage: "tests"
-  script:
-    - pytest tests/
-
 mypy:
   stage: "linters"
   script:
-    - mypy src/
+    - poetry run mypy src/
 
 isort:
   stage: "linters"
   script:
-    - isort --check-only src/
+    - poetry run isort --check-only src/
 
 black:
   stage: "linters"
   script:
-    - black --check --diff src/
+    - poetry run black --check --diff src/
 
 flake8:
   stage: "linters"
   script:
-    - flake8 src/
+    - poetry run flake8 src/
+
+tests:
+  stage: "tests"
+  script:
+    - poetry run pytest tests/
