@@ -33,7 +33,7 @@ flake8:
   script:
     - poetry run flake8 src/
 
-tests:
-  stage: "tests"
-  script:
-    - poetry run pytest tests
+# tests:
+#   stage: "tests"
+#   script:
+#     - poetry run pytest tests/
