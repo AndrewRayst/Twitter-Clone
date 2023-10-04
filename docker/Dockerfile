@@ -11,7 +11,7 @@ COPY pyproject.toml .
 
 RUN poetry install
 
-COPY src/* .
+COPY src .
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
     then poetry run uvicorn main:application --host 0.0.0.0 --port 5000; \
