@@ -4,5 +4,3 @@ router: APIRouter = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
-
-
