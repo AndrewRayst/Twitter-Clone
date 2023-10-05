@@ -1,10 +1,36 @@
-version: "3.1"
+version: "3.9"
 services:
+  database:
+    image: postgres:16
+    restart: always
+    volumes:
+      - ../database_data/:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "2345:80"
+    env_file:
+      - ../.env
+    depends_on:
+      - database
+
   server_app:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    restart: always
+    stop_signal: SIGKILL
+    volumes:
+      - ../logs/:/logs
     ports:
       - "5000:5000"
     env_file:
       - ../.env
+    depends_on:
+      - database
