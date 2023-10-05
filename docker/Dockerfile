@@ -4,15 +4,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
 WORKDIR /app
 
-RUN pip install poetry
+COPY alembic alembic
+COPY alembic.ini .
 
 COPY poetry.lock .
 COPY pyproject.toml .
 
-RUN poetry install
+RUN python -m pip install --no-cache-dir poetry==1.4.2 \
+    && poetry config virtualenvs.create false \
+    && poetry install --without dev,test --no-interaction --no-ansi \
+    && rm -rf $(poetry config cache-dir)/{cache,artifacts}
 
-COPY src .
+COPY src src
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
-    then poetry run uvicorn main:application --host 0.0.0.0 --port 5000; \
-    else poetry run uvicorn main:application --host 0.0.0.0 --port 5000; fi
+    then uvicorn src.main:application --host 0.0.0.0 --port 5000; \
+    else uvicorn src.main:application  --host 0.0.0.0 --port 5000; fi

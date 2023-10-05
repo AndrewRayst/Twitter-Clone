@@ -25,6 +25,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     restart: always
+    stop_signal: SIGKILL
     volumes:
       - ../logs/:/logs
     ports:
