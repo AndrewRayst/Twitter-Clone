@@ -23,6 +23,7 @@ application: FastAPI = FastAPI(
     description="Thesis by Andrey Telitsin for Skillbox",
 )
 
+
 @application.on_event("shutdown")
 async def _on_shutdown() -> None:
     await shutdown_db()
