@@ -5,6 +5,8 @@ from loguru import logger
 
 from src import config
 from src.database.core import shutdown_db
+from src.users.router import router as users_router
+
 
 logger.add(
     f"../logs/{datetime.now().strftime('%Y-%m-%d')}_log.json",
@@ -22,6 +24,9 @@ application: FastAPI = FastAPI(
     version="0.1.0",
     description="Thesis by Andrey Telitsin for Skillbox",
 )
+
+
+application.include_router(users_router)
 
 
 @application.on_event("shutdown")
