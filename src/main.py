@@ -7,7 +7,6 @@ from src import config
 from src.database.core import shutdown_db
 from src.users.router import router as users_router
 
-
 logger.add(
     f"../logs/{datetime.now().strftime('%Y-%m-%d')}_log.json",
     level="INFO",
