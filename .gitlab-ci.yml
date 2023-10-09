@@ -33,7 +33,14 @@ flake8:
   script:
     - poetry run flake8 src/
 
-# tests:
-#   stage: "tests"
-#   script:
-#     - poetry run pytest tests/
+tests:
+  stage: "tests"
+  script:
+    - poetry run pytest tests/
+  services:
+    - postgres:16
+  variables:
+    POSTGRES_USER: $POSTGRES_USER
+    POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    POSTGRES_DB: $POSTGRES_DB
+    POSTGRES_HOST_AUTH_METHOD: trust
