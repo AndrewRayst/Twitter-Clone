@@ -15,17 +15,17 @@ router: APIRouter = APIRouter(
 )
 
 
-@router.post("/user_id/follow", response_model=SuccessResponseSchema, status_code=201)
+@router.post("/{user_id}/follow", response_model=SuccessResponseSchema, status_code=201)
 async def _follow(
-    user_id: int, follower_api_key: str, session: AsyncSession = Depends(get_session)
+    user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for following user
     :param user_id: id of the user to follow
-    :param follower_api_key: API key of the user who wants to follow
+    :param api_key: API key of the user who wants to follow
     """
     try:
-        await follow_user(session, user_id, follower_api_key)
+        await follow_user(session, user_id, api_key)
         return {
             "result": True,
         }
@@ -64,17 +64,19 @@ async def _follow(
         )
 
 
-@router.post("/user_id/unfollow", response_model=SuccessResponseSchema, status_code=200)
+@router.post(
+    "/{user_id}/unfollow", response_model=SuccessResponseSchema, status_code=200
+)
 async def _unfollow(
-    user_id: int, follower_api_key: str, session: AsyncSession = Depends(get_session)
+    user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for following user
     :param user_id: id of the user to follow
-    :param follower_api_key: API key of the user who wants to follow
+    :param api_key: API key of the user who wants to follow
     """
     try:
-        await unfollow_user(session, user_id, follower_api_key)
+        await unfollow_user(session, user_id, api_key)
         return {
             "result": True,
         }

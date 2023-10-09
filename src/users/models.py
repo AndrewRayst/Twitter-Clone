@@ -1,10 +1,10 @@
 from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, MappedColumn, relationship
 
-from src.database.models import PrimaryKeyModel
+from src.database.models import BaseModel
 
 
-class UserModel(PrimaryKeyModel):
+class UserModel(BaseModel):
     __tablename__ = "users"
     name: Mapped[str] = MappedColumn(String(length=50))
     api_key_hash: Mapped[str]
@@ -22,7 +22,7 @@ class UserModel(PrimaryKeyModel):
     )
 
 
-class UserFollowerModel(PrimaryKeyModel):
+class UserFollowerModel(BaseModel):
     __tablename__ = "user_followers"
     __table_args__ = (
         UniqueConstraint("user_id", "follower_id", name="unique_follower_id"),
