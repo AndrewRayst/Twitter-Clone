@@ -11,13 +11,13 @@ class UserModel(PrimaryKeyModel):
 
     followers: Mapped[list["UserFollowerModel"]] = relationship(
         "UserFollowerModel",
-        primaryjoin="UserFollowerModel.user_id == users.id",
+        primaryjoin="UserFollowerModel.user_id == UserModel.id",
         lazy="joined",
     )
 
     following: Mapped[list["UserFollowerModel"]] = relationship(
         "UserFollowerModel",
-        primaryjoin="UserFollowerModel.follower_id == users.id",
+        primaryjoin="UserFollowerModel.follower_id == UserModel.id",
         lazy="joined",
     )
 
