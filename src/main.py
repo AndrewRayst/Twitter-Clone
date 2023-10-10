@@ -1,10 +1,12 @@
 from datetime import datetime
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from src import config
 from src.database.core import shutdown_db
+from src.media.router import router as media_router
 from src.users.router import router as users_router
 
 logger.add(
@@ -24,8 +26,15 @@ application: FastAPI = FastAPI(
     description="Thesis by Andrey Telitsin for Skillbox",
 )
 
+application.mount(
+    "/static",
+    StaticFiles(directory=config.STATIC_FILES_PATH),
+    name="static",
+)
+
 
 application.include_router(users_router)
+application.include_router(media_router)
 
 
 @application.on_event("shutdown")

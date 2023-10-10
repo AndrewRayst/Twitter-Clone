@@ -15,6 +15,7 @@ RUN python -m pip install --no-cache-dir poetry==1.4.2 \
     && poetry install --without dev,test --no-interaction --no-ansi \
     && rm -rf $(poetry config cache-dir)/{cache,artifacts}
 
+COPY static static
 COPY src src
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
