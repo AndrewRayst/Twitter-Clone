@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEBUG: bool = bool(os.getenv("FASTAPI_DEBUG", False))
-STATIC_FILES_PATH: str = os.getenv("FASTAPI_STATIC_FILES_PATH", "../static")
+STATIC_FILES_PATH: str = os.getenv("FASTAPI_STATIC_FILES_PATH", "static")
 
 POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
 POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
