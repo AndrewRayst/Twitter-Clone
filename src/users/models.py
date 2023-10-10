@@ -9,15 +9,19 @@ class UserModel(BaseModel):
     name: Mapped[str] = MappedColumn(String(length=50))
     api_key_hash: Mapped[str]
 
-    followers: Mapped[list["UserFollowerModel"]] = relationship(
-        "UserFollowerModel",
-        primaryjoin="UserFollowerModel.user_id == UserModel.id",
+    followers: Mapped[list["UserModel"]] = relationship(
+        argument="UserModel",
+        secondary="user_followers",
+        primaryjoin="UserModel.id == UserFollowerModel.user_id",
+        secondaryjoin="UserModel.id == UserFollowerModel.follower_id",
         lazy="joined",
     )
 
-    following: Mapped[list["UserFollowerModel"]] = relationship(
-        "UserFollowerModel",
-        primaryjoin="UserFollowerModel.follower_id == UserModel.id",
+    following: Mapped[list["UserModel"]] = relationship(
+        argument="UserModel",
+        secondary="user_followers",
+        primaryjoin="UserModel.id == UserFollowerModel.follower_id",
+        secondaryjoin="UserModel.id == UserFollowerModel.user_id",
         lazy="joined",
     )
 
