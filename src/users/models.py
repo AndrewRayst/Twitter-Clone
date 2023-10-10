@@ -22,6 +22,7 @@ class UserModel(BaseModel):
         secondary="user_followers",
         primaryjoin="UserModel.id == UserFollowerModel.follower_id",
         secondaryjoin="UserModel.id == UserFollowerModel.user_id",
+        overlaps="followers",
         lazy="joined",
     )
 
