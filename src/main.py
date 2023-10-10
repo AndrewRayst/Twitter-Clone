@@ -6,6 +6,7 @@ from loguru import logger
 from src import config
 from src.database.core import shutdown_db
 from src.users.router import router as users_router
+from src.media.router import router as media_router
 
 logger.add(
     f"../logs/{datetime.now().strftime('%Y-%m-%d')}_log.json",
@@ -26,6 +27,7 @@ application: FastAPI = FastAPI(
 
 
 application.include_router(users_router)
+application.include_router(media_router)
 
 
 @application.on_event("shutdown")
