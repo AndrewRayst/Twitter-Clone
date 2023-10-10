@@ -16,6 +16,7 @@ RUN python -m pip install --no-cache-dir poetry==1.4.2 \
     && rm -rf $(poetry config cache-dir)/{cache,artifacts}
 
 COPY src src
+COPY static src/static
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
     then uvicorn src.main:application --host 0.0.0.0 --port 5000; \

@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from src import config
 from src.database.core import shutdown_db
-from src.users.router import router as users_router
 from src.media.router import router as media_router
+from src.users.router import router as users_router
 
 logger.add(
     f"../logs/{datetime.now().strftime('%Y-%m-%d')}_log.json",
@@ -23,6 +24,12 @@ application: FastAPI = FastAPI(
     title="Twitter clone",
     version="0.1.0",
     description="Thesis by Andrey Telitsin for Skillbox",
+)
+
+application.mount(
+    "/static",
+    StaticFiles(directory=config.STATIC_FILES_PATH),
+    name="static",
 )
 
 
