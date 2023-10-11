@@ -23,7 +23,7 @@ async def _add_media(
 ) -> dict | JSONResponse:
     """
     The endpoint for adding media file
-    :param api_key: API key of the user who wants to follow
+    :param api_key: API key of the user who wants to add image media.
     :param file: media file
     :return: id of media in database
     """

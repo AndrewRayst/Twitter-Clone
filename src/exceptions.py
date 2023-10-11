@@ -22,3 +22,8 @@ class ExistError(APIException):
 class ConflictError(APIException):
     def __init__(self, message: str, *args: Any) -> None:
         super().__init__("ConflictError", message, *args)
+
+
+class AccessError(APIException):
+    def __init__(self, message: str, *args: Any) -> None:
+        super().__init__("AccessError", message, *args)

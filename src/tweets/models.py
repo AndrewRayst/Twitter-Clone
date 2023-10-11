@@ -18,3 +18,9 @@ class TweetModel(BaseModel):
         primaryjoin="TweetModel.id == MediaModel.tweet_id",
         lazy="joined",
     )
+    #
+    # author: Mapped[list[int]] = relationship(
+    #     argument="UserModel",
+    #     primaryjoin="TweetModel.user_id == UserModel.id",
+    #     lazy="joined",
+    # )
