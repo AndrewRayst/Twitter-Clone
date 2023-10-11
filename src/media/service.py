@@ -1,4 +1,4 @@
-from sqlalchemy import Select, select
+from sqlalchemy import Select, select, Update, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import ExistError
@@ -30,3 +30,22 @@ async def add_image_media(session: AsyncSession, api_key: str, image_src: str) -
     await session.commit()
 
     return instance.id
+
+
+async def update_tweet_id(session: AsyncSession, tweet_id: int, media_ids: list[int]) -> None:
+    """
+    The service for updating the twitter_id column
+    in records of 'media' table by the transmitted identifiers.
+    !!!Don't use this without checking for the existence of a user with the passed api_key!!!
+    :param session: session to connect to the database.
+    :param tweet_id: tweet ID for attaching media files
+    :param media_ids: media IDs for attaching to a tweet
+    :return: None
+    """
+    statement: Update = (
+        update(MediaModel)
+        .where(MediaModel.id.in_(media_ids))
+        .values(tweet_id=tweet_id)
+    )
+    await session.execute(statement)
+    await session.commit()
