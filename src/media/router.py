@@ -11,7 +11,7 @@ from src.media.service import add_image_media
 
 router: APIRouter = APIRouter(
     prefix="/api/medias",
-    tags=["media"],
+    tags=["Media"],
 )
 
 
