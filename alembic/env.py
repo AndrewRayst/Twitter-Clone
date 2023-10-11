@@ -9,6 +9,7 @@ from src.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
 from src.database.models import BaseModel
 from src.users.models import UserModel, UserFollowerModel
 from src.media.models import MediaModel
+from src.tweets.models import TweetModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
