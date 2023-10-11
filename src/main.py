@@ -7,6 +7,7 @@ from loguru import logger
 from src import config
 from src.database.core import shutdown_db
 from src.media.router import router as media_router
+from src.tweets.router import router as tweets_router
 from src.users.router import router as users_router
 
 logger.add(
@@ -35,6 +36,7 @@ application.mount(
 
 application.include_router(users_router)
 application.include_router(media_router)
+application.include_router(tweets_router)
 
 
 @application.on_event("shutdown")

@@ -11,7 +11,7 @@ from src.media.service import add_image_media
 
 router: APIRouter = APIRouter(
     prefix="/api/medias",
-    tags=["media"],
+    tags=["Media"],
 )
 
 
@@ -21,6 +21,12 @@ async def _add_media(
     file: UploadFile = File(...),
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
+    """
+    The endpoint for adding media file
+    :param api_key: API key of the user who wants to add image media.
+    :param file: media file
+    :return: id of media in database
+    """
     try:
         image_id: int = await add_image_media(
             session=session, api_key=api_key, image_src=LOADING_IMAGE_SRC
