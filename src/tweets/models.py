@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, MappedColumn, relationship
 
 from src.database.models import BaseModel
@@ -24,3 +24,16 @@ class TweetModel(BaseModel):
     #     primaryjoin="TweetModel.user_id == UserModel.id",
     #     lazy="joined",
     # )
+
+
+class TweetLikeModel(BaseModel):
+    __tablename__ = "tweet_likes"
+    __table_args__ = (
+        UniqueConstraint("tweet_id", "user_id", name="unique_tweet_like_id"),
+    )
+    tweet_id: Mapped[int] = MappedColumn(
+        Integer(), ForeignKey("tweets.id", ondelete="CASCADE")
+    )
+    user_id: Mapped[int] = MappedColumn(
+        Integer(), ForeignKey("users.id", ondelete="CASCADE")
+    )
