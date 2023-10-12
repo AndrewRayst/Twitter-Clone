@@ -2,7 +2,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import AccessError, ExistError
-from src.tweets.models import TweetModel
+from src.tweets.models import TweetModel, TweetLikeModel
 from src.users.models import UserModel
 from src.utils import get_hash
 
@@ -70,4 +70,39 @@ async def delete_tweet(
 
     # Deleting tweet in database
     await session.delete(tweet)
+    await session.commit()
+
+
+async def like_tweet(session: AsyncSession, tweet_id: int, api_key: str) -> None:
+    """
+    The service for liking the tweet by id
+    :param session: session to connect to the database
+    :param tweet_id: id of the tweet to like
+    :param api_key: API key of the user who wants to like the tweet
+    :return: None
+    """
+    # Getting the user
+    user_query: Select = select(UserModel).where(
+        UserModel.api_key_hash == get_hash(api_key)
+    )
+    user: UserModel = await session.scalar(user_query)
+
+    # Checking the existence of a user
+    if not user:
+        raise ExistError("The user doesn't exist")
+
+    # Getting the tweet
+    tweet_query: Select = select(TweetModel).where(TweetModel.id == tweet_id)
+    tweet: TweetModel = await session.scalar(tweet_query)
+
+    # Checking the existence of a tweet
+    if not tweet:
+        raise ExistError("The tweet doesn't exist")
+
+    # Adding follow
+    instance: TweetLikeModel = TweetLikeModel(
+        user_id=user.id, tweet_id=tweet.id
+    )
+
+    session.add(instance)
     await session.commit()
