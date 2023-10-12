@@ -1,8 +1,8 @@
-from sqlalchemy import Select, select, Delete, delete
+from sqlalchemy import Delete, Select, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import AccessError, ExistError
-from src.tweets.models import TweetModel, TweetLikeModel
+from src.tweets.models import TweetLikeModel, TweetModel
 from src.users.models import UserModel
 from src.utils import get_hash
 
@@ -100,9 +100,7 @@ async def like_tweet(session: AsyncSession, tweet_id: int, api_key: str) -> None
         raise ExistError("The tweet doesn't exist")
 
     # Adding like record
-    instance: TweetLikeModel = TweetLikeModel(
-        user_id=user.id, tweet_id=tweet.id
-    )
+    instance: TweetLikeModel = TweetLikeModel(user_id=user.id, tweet_id=tweet.id)
 
     session.add(instance)
     await session.commit()

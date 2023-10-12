@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.core import get_session
-from src.exceptions import AccessError, ExistError, ConflictError
+from src.exceptions import AccessError, ConflictError, ExistError
 from src.media.service import update_tweet_id
 from src.schemas import SuccessResponseSchema
 from src.tweets.schemas import SuccessTweetResponseSchema, TweetSchema
@@ -147,7 +147,9 @@ async def _like_tweet(
         )
 
 
-@router.delete("/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=200)
+@router.delete(
+    "/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=200
+)
 async def _unlike_tweet(
     tweet_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
@@ -183,4 +185,3 @@ async def _unlike_tweet(
                 "error_message": "Oops, something went wrong :(\nTry again please",
             },
         )
-
