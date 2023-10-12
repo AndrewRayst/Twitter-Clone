@@ -13,17 +13,25 @@ class TweetModel(BaseModel):
     )
     content: Mapped[str]
 
-    media_ids: Mapped[list[int]] = relationship(
-        argument="MediaModel",
+    attachments: Mapped[list[str]] = relationship(
+        argument="MediaModel.src",
         primaryjoin="TweetModel.id == MediaModel.tweet_id",
         lazy="joined",
     )
-    #
-    # author: Mapped[list[int]] = relationship(
-    #     argument="UserModel",
-    #     primaryjoin="TweetModel.user_id == UserModel.id",
-    #     lazy="joined",
-    # )
+
+    author: Mapped[UserModel] = relationship(
+        argument="UserModel",
+        primaryjoin="TweetModel.user_id == UserModel.id",
+        lazy="joined",
+    )
+
+    likes: Mapped[list[UserModel]] = relationship(
+        argument="UserModel",
+        secondary="tweet_likes",
+        primaryjoin="TweetModel.id == TweetLikeModel.tweet_id",
+        secondaryjoin="TweetLikeModel.user_id == UserModel.id",
+        lazy="joined",
+    )
 
 
 class TweetLikeModel(BaseModel):
