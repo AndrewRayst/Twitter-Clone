@@ -8,13 +8,23 @@ from src.database.core import get_session
 from src.exceptions import AccessError, ConflictError, ExistError
 from src.media.service import update_tweet_id
 from src.schemas import SuccessResponseSchema
-from src.tweets.schemas import SuccessTweetResponseSchema, TweetSchema
-from src.tweets.service import add_tweet, delete_tweet, like_tweet, unlike_tweet
+from src.tweets.schemas import (
+    SuccessTweetPostResponseSchema,
+    SuccessTweetsResponseSchema,
+    TweetSchema,
+)
+from src.tweets.service import (
+    add_tweet,
+    delete_tweet,
+    get_tweets,
+    like_tweet,
+    unlike_tweet,
+)
 
 router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
 
 
-@router.post("/", response_model=SuccessTweetResponseSchema, status_code=201)
+@router.post("/", response_model=SuccessTweetPostResponseSchema, status_code=201)
 async def _add_tweet(
     tweet_json: TweetSchema,
     api_key: str,
@@ -88,6 +98,61 @@ async def _delete_tweet(
         )
     except Exception as exc:
         logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
+        return JSONResponse(
+            status_code=400,
+            content={
+                "result": False,
+                "error_type": "Exception",
+                "error_message": "Oops, something went wrong :(\nTry again please",
+            },
+        )
+
+
+@router.get("/", response_model=SuccessTweetsResponseSchema, status_code=200)
+async def _get_tweets(
+    api_key: str,
+    limit: int = 10,
+    offset: int = 0,
+    session: AsyncSession = Depends(get_session),
+) -> dict | JSONResponse:
+    """
+    The endpoint for getting tweets
+    :param limit: limit of getting tweets
+    :param offset: offset before getting tweets
+    :param api_key: API key of the user who wants to add the tweet
+    :return: id of tweet in database
+    """
+    try:
+        tweets = await get_tweets(
+            session=session, api_key=api_key, limit=limit, offset=offset
+        )
+
+        return {"result": True, "tweets": tweets}
+
+    except ExistError as exc:
+        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
+        await logger.complete()
+        return JSONResponse(
+            status_code=400,
+            content={
+                "result": False,
+                "error_type": exc.get_name(),
+                "error_message": exc.get_message(),
+            },
+        )
+    except ValueError as exc:
+        logger.info(f"{str(exc)}")
+        await logger.complete()
+        return JSONResponse(
+            status_code=400,
+            content={
+                "result": False,
+                "error_type": "ValueError",
+                "error_message": str(exc),
+            },
+        )
+    except Exception as exc:
+        logger.warning(f"string representation: {str(exc)}, args: {str(exc.args)}")
         return JSONResponse(
             status_code=400,
             content={

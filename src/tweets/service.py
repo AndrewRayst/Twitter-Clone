@@ -1,10 +1,84 @@
-from sqlalchemy import Delete, Select, delete, select
+from typing import Sequence
+
+from sqlalchemy import Delete, Select, Subquery, delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.exceptions import AccessError, ExistError
+from src.media.models import MediaModel
 from src.tweets.models import TweetLikeModel, TweetModel
 from src.users.models import UserModel
 from src.utils import get_hash
+
+
+async def get_tweets(
+    session: AsyncSession,
+    api_key: str,
+    limit: int,
+    offset: int,
+) -> list[TweetModel] | Sequence[TweetModel]:
+    """
+    The service for adding tweet in database
+    :param session: session to connect to the database.
+    :param api_key: API key of the user who wants to add the tweet
+    :param limit: limiting the number of tweets to receive
+    :param offset: number of posts to skip
+    :return: id of the tweet in database
+    """
+    # Checking limit and offset
+    if limit <= 0:
+        raise ValueError("the limit must be greater than 0.")
+    elif limit > 20:
+        raise ValueError("the limit must be equal to or less than 20.")
+
+    if offset < 0:
+        raise ValueError("the offset must be positive number.")
+
+    # Getting user
+    user_query: Select = select(UserModel).where(
+        UserModel.api_key_hash == get_hash(api_key)
+    )
+    user: UserModel = await session.scalar(user_query)
+
+    # Checking the existence of a user
+    if not user:
+        raise ExistError("The user doesn't exist")
+
+    # Subquery for getting count of likes
+    likes_count_subquery: Subquery = (
+        select(
+            TweetModel.id.label("tweet_id"),
+            func.count(TweetLikeModel.id).label("likes_count"),
+        )
+        .outerjoin(TweetLikeModel)
+        .group_by(TweetModel.id)
+        .subquery("likes_count_subquery")
+    )
+
+    # Getting tweets
+    query: Select = (
+        select(TweetModel)
+        # adding author
+        .options(joinedload(TweetModel.author).load_only(UserModel.id, UserModel.name))
+        # adding likes
+        .options(joinedload(TweetModel.likes).load_only(UserModel.id, UserModel.name))
+        # adding media
+        .options(joinedload(TweetModel.media).load_only(MediaModel.src))
+        # adding the number of likes for sorting
+        .join(likes_count_subquery, TweetModel.id == likes_count_subquery.c.tweet_id)
+        # sorting by number of likes. from most to least.
+        .order_by(desc(likes_count_subquery.c.likes_count))
+        .offset(offset=offset)
+        .limit(limit=limit)
+    )
+    tweets_response = await session.scalars(query)
+    tweets = tweets_response.unique().fetchall()
+
+    # create attachments for every post
+    for i_tweet in tweets:
+        i_tweet.attachments = [i_media.src for i_media in i_tweet.media]
+
+    return tweets
 
 
 async def add_tweet(session: AsyncSession, api_key: str, tweet_content: str) -> int:
