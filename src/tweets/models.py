@@ -2,6 +2,7 @@ from sqlalchemy import ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, MappedColumn, relationship
 
 from src.database.models import BaseModel
+from src.media.models import MediaModel
 from src.users.models import UserModel
 
 
@@ -13,8 +14,8 @@ class TweetModel(BaseModel):
     )
     content: Mapped[str]
 
-    attachments: Mapped[list[str]] = relationship(
-        argument="MediaModel.src",
+    media: Mapped[list[MediaModel]] = relationship(
+        argument=MediaModel,
         primaryjoin="TweetModel.id == MediaModel.tweet_id",
         lazy="joined",
     )

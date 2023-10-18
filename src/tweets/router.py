@@ -8,8 +8,18 @@ from src.database.core import get_session
 from src.exceptions import AccessError, ConflictError, ExistError
 from src.media.service import update_tweet_id
 from src.schemas import SuccessResponseSchema
-from src.tweets.schemas import SuccessTweetPostResponseSchema, TweetSchema, SuccessTweetsResponseSchema
-from src.tweets.service import add_tweet, delete_tweet, like_tweet, unlike_tweet, get_tweets
+from src.tweets.schemas import (
+    SuccessTweetPostResponseSchema,
+    SuccessTweetsResponseSchema,
+    TweetSchema,
+)
+from src.tweets.service import (
+    add_tweet,
+    delete_tweet,
+    get_tweets,
+    like_tweet,
+    unlike_tweet,
+)
 
 router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
 
@@ -118,6 +128,7 @@ async def _get_tweets(
         )
 
         return {"result": True, "tweets": tweets}
+
     except ExistError as exc:
         logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
         await logger.complete()
@@ -150,8 +161,6 @@ async def _get_tweets(
                 "error_message": "Oops, something went wrong :(\nTry again please",
             },
         )
-
-
 
 
 @router.post("/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=201)
