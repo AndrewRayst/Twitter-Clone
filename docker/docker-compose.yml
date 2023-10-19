@@ -43,3 +43,30 @@ services:
     depends_on:
       - database
       - redis
+
+  celery:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: celery_app
+    command: celery --app=src.celery_init:celery_app worker --loglevel=info --logfile=../logs/celery.log
+    volumes:
+      - ../logs/:/logs
+    env_file:
+      - ../.env
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: flower_app
+    command: celery --app=src.celery_init:celery_app flower --basic-auth=user:user
+    env_file:
+      - ../.env
+    depends_on:
+      - celery
+      - redis
+    ports:
+      - "5555:5555"

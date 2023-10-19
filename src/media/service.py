@@ -50,3 +50,24 @@ async def update_tweet_id(
     )
     await session.execute(statement)
     await session.commit()
+
+
+async def update_image_src(
+    session: AsyncSession, image_id: int, image_src: str
+) -> None:
+    """
+    The service for updating the src column
+    in records of 'media' table by the transmitted identifiers.
+    !!! Don't use this without checking for the existence of
+        a user with the passed api_key !!!
+    :param session: session to connect to the database.
+    :param image_id: image ID for updating source
+    :param image_src: new image source
+    :return: None
+    """
+    # update image src
+    statement: Update = (
+        update(MediaModel).where(MediaModel.id == image_id).values(src=image_src)
+    )
+    await session.execute(statement)
+    await session.commit()
