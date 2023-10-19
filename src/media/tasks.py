@@ -8,7 +8,7 @@ from loguru import logger
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
-from src.celery import celery
+from src.celery_init import celery_app
 from src.database.core import session_maker
 from src.media.service import update_image_src
 from src.utils import get_random_string
@@ -34,7 +34,7 @@ async def update_image_src_in_database_async(image_id: int, image_src: str) -> N
         await update_image_src(image_id=image_id, image_src=image_src, session=session)
 
 
-@celery.task
+@celery_app.task
 def process_image(
     image_id: int,
     image_data: AnyStr,
@@ -63,7 +63,7 @@ def process_image(
     logger.info("process_image")
 
 
-@celery.task
+@celery_app.task
 def send_image_to_storage(
     image_id: int,
     image_data: AnyStr,
@@ -79,7 +79,7 @@ def send_image_to_storage(
     logger.info("send_image_to_storage")
 
 
-@celery.task
+@celery_app.task
 def update_image_src_in_database(
     image_id: int,
     image_src: str,

@@ -49,7 +49,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     container_name: celery_app
-    command: celery --app=src.celery:celery worker --loglevel=info --logfile=../logs/celery.log
+    command: celery --app=src.celery_init:celery_app worker --loglevel=info --logfile=../logs/celery.log
     volumes:
       - ../logs/:/logs
     env_file:
@@ -62,7 +62,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     container_name: flower_app
-    command: celery --app=src.celery:celery flower --basic-auth=user:user
+    command: celery --app=src.celery_init:celery_app flower --basic-auth=user:user
     env_file:
       - ../.env
     depends_on:
