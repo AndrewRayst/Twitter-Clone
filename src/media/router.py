@@ -8,6 +8,7 @@ from src.exceptions import ExistError
 from src.media.config import LOADING_IMAGE_SRC
 from src.media.schemas import SuccessMediaResponseSchema
 from src.media.service import add_image_media
+from src.media.tasks import process_image
 
 router: APIRouter = APIRouter(
     prefix="/api/medias",
@@ -31,6 +32,9 @@ async def _add_media(
         image_id: int = await add_image_media(
             session=session, api_key=api_key, image_src=LOADING_IMAGE_SRC
         )
+
+        process_image.delay(image_id=image_id, image_data=file.file.read())
+
         return {"result": True, "media_id": image_id}
     except ExistError as exc:
         logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
