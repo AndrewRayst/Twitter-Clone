@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import Delete, Select, Subquery, delete, desc, func, select
+from sqlalchemy import Delete, Select, Subquery, delete, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -35,14 +35,18 @@ async def get_tweets(
         raise ValueError("the offset must be positive number.")
 
     # Getting user
-    user_query: Select = select(UserModel).where(
-        UserModel.api_key_hash == get_hash(api_key)
+    user_query: Select = (
+        select(UserModel)
+        .where(UserModel.api_key_hash == get_hash(api_key))
+        .options(joinedload(UserModel.following).load_only(UserModel.id))
     )
     user: UserModel = await session.scalar(user_query)
 
     # Checking the existence of a user
     if not user:
         raise ExistError("The user doesn't exist")
+
+    user_following_ids: list[int] = [i_following.id for i_following in user.following]
 
     # Subquery for getting count of likes
     likes_count_subquery: Subquery = (
@@ -55,22 +59,42 @@ async def get_tweets(
         .subquery("likes_count_subquery")
     )
 
-    # Getting tweets
-    query: Select = (
-        select(TweetModel)
+    # Subquery for getting tweets
+    tweets_subquery: Subquery = (
+        select(TweetModel.content, TweetModel.id.label("id"))
         # adding author
         .options(joinedload(TweetModel.author).load_only(UserModel.id, UserModel.name))
         # adding likes
         .options(joinedload(TweetModel.likes).load_only(UserModel.id, UserModel.name))
         # adding media
         .options(joinedload(TweetModel.media).load_only(MediaModel.src))
+        # sorting for getting the latest tweets
+        .order_by(TweetModel.id.desc())
+        # filtering to get only your tweets or tweets from people you follow
+        .where(
+            or_(
+                TweetModel.user_id == user.id,
+                TweetModel.user_id.in_(user_following_ids),
+            )
+        )
+        # offset and limit tweets
+        .offset(offset=offset)
+        .limit(limit=limit)
+        .subquery()
+    )
+
+    # Query for getting tweets and order by likes
+    query: Select = (
+        select(TweetModel)
+        # adding tweets
+        .join(tweets_subquery, tweets_subquery.c.id == TweetModel.id)
         # adding the number of likes for sorting
         .join(likes_count_subquery, TweetModel.id == likes_count_subquery.c.tweet_id)
         # sorting by number of likes. from most to least.
         .order_by(desc(likes_count_subquery.c.likes_count))
-        .offset(offset=offset)
-        .limit(limit=limit)
     )
+
+    # getting tweets
     tweets_response = await session.scalars(query)
     tweets = tweets_response.unique().fetchall()
 
