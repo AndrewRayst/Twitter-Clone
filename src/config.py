@@ -22,3 +22,7 @@ DB_URL_TEST: str = "postgresql+asyncpg://{}:{}@{}:5432/{}".format(
     POSTGRES_HOST,
     POSTGRES_DB,
 )
+
+REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT: int = os.getenv("REDIS_PORT", 6379)
+REDIS_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}"

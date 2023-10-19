@@ -20,6 +20,14 @@ services:
     depends_on:
       - database
 
+  redis:
+    image: redis:7
+    container_name: redis_app
+    restart: always
+    stop_signal: SIGKILL
+    ports:
+      - "6379:6379"
+
   server_app:
     build:
       context: ../
@@ -34,3 +42,4 @@ services:
       - ../.env
     depends_on:
       - database
+      - redis
