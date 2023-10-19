@@ -2,9 +2,9 @@ from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from loguru import logger
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from loguru import logger
 from redis import asyncio as aioredis
 
 from src import config
@@ -43,7 +43,7 @@ application.include_router(tweets_router)
 
 
 @application.on_event("startup")
-async def startup():
+async def startup() -> None:
     redis = aioredis.from_url(config.REDIS_URL, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
