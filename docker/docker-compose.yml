@@ -25,8 +25,8 @@ services:
     container_name: redis_app
     restart: always
     stop_signal: SIGKILL
-    ports:
-      - "6379:6379"
+    env_file:
+      - ../.env
 
   server_app:
     build:
