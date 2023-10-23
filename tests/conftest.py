@@ -38,6 +38,12 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture(scope="module")
+async def async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with session_maker() as session:
+        yield session
+
+
+@pytest.fixture(scope="module")
 async def users() -> TUsersTest:
     """
     The fixture for adding three users to db for testing.
