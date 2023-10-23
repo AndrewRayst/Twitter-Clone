@@ -44,7 +44,8 @@ application.include_router(tweets_router)
 
 @application.on_event("startup")
 async def startup() -> None:
-    redis = aioredis.from_url(config.REDIS_URL, encoding="utf8", decode_responses=True)
+    redis_url = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
+    redis = aioredis.from_url(redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 
