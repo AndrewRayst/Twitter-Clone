@@ -1,4 +1,5 @@
 from asyncio import get_event_loop_policy, AbstractEventLoop, AbstractEventLoopPolicy
+from random import randint
 from typing import AsyncGenerator, Generator
 
 import pytest
@@ -12,6 +13,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 from httpx import AsyncClient
 
+from src.media.models import MediaModel
+from src.utils import get_random_string
 from tests.shared import TUsersTest, UserTestDataClass
 from src import config
 from src.database.core import get_session
@@ -75,6 +78,23 @@ async def users() -> TUsersTest:
         await session.commit()
 
     return users
+
+
+@pytest.fixture(scope="function")
+async def image_ids(async_session: AsyncSession) -> list[int]:
+    """
+    The fixture for getting ids of images.
+    :return: images ids
+    """
+    images: list[MediaModel] = [
+        MediaModel(src=get_random_string())
+        for _ in range(randint(0, 3))
+    ]
+
+    async_session.add_all(images)
+    await async_session.commit()
+
+    return [i_image.id for i_image in images]
 
 
 # SETUP

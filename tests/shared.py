@@ -1,3 +1,4 @@
+from src.tweets.models import TweetModel
 from src.utils import get_hash, get_random_string
 
 
@@ -20,19 +21,19 @@ class UserTestDataClass:
 
 
 class TweetTestDataClass:
-    user_id: id
+    user: UserTestDataClass
     content: str
     id: int = 0
 
-    def __init__(self, user_id: id):
-        self.user_id = user_id
+    def __init__(self, user: UserTestDataClass):
+        self.user = user
         self.content = get_random_string()
 
-    def __dict__(self) -> dict:
-        return {
-            "content": self.content,
-            "user_id": self.user_id,
-        }
+    def get_instance(self) -> TweetModel:
+        return TweetModel(
+            content=self.content,
+            user_id=self.user.id,
+        )
 
 
 TUsersTest = tuple[UserTestDataClass, UserTestDataClass, UserTestDataClass]

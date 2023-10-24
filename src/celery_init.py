@@ -1,11 +1,13 @@
 from celery import Celery
+from loguru import logger
 
 from src import config
 
-task_imports: list[str] = ["src.media.tasks"]
+TASK_IMPORTS: list[str] = ["src.media.tasks"]
+REDIS_URL: str = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
 
 celery_app = Celery(
     "tasks",
-    include=task_imports,
-    broker=config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL,
+    include=TASK_IMPORTS,
+    broker=REDIS_URL,
 )

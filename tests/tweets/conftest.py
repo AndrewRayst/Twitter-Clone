@@ -1,19 +1,34 @@
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared import TweetTestDataClass, TUsersTest
-from tests.conftest import session_maker
 from src.tweets.models import TweetModel
 
 
 @pytest.fixture(scope="module")
-async def tweet(users: TUsersTest) -> TweetTestDataClass:
-    tweet = TweetTestDataClass(user_id=users[0].id)
-    instance = TweetModel(**tweet.__dict__())
+async def tweet_data(users: TUsersTest) -> TweetTestDataClass:
+    """
+    The fixture for getting tweet data
+    :param users: user who added in database
+    :return: tweet data
+    """
+    return TweetTestDataClass(users[0])
 
-    async with session_maker() as session:
-        session.add(instance)
-        await session.commit()
 
-        tweet.id = instance.id
+@pytest.fixture(scope="module")
+async def tweet(users: TUsersTest, async_session: AsyncSession) -> TweetTestDataClass:
+    """
+    The fixture for adding tweet in database and getting tweet data
+    :param users: user who added in database
+    :param async_session: async session for connecting to database
+    :return: tweet data
+    """
+    tweet = TweetTestDataClass(users[0])
+    instance: TweetModel = tweet.get_instance()
+
+    async_session.add(instance)
+    await async_session.commit()
+
+    tweet.id = instance.id
 
     return tweet
