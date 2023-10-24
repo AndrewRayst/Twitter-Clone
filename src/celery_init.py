@@ -1,5 +1,4 @@
 from celery import Celery
-from loguru import logger
 
 from src import config
 
