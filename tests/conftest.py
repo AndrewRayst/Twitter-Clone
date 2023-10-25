@@ -80,7 +80,7 @@ async def users() -> TUsersTest:
     return users
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 async def image_ids(async_session: AsyncSession) -> list[int]:
     """
     The fixture for getting ids of images.
