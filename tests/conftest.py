@@ -74,6 +74,7 @@ async def users() -> TUsersTest:
         # save id
         users[0].id = user_1.id
         users[1].id = user_2.id
+        users[2].id = user_3.id
 
         await session.commit()
 
