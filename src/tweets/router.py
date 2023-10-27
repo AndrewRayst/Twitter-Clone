@@ -43,7 +43,10 @@ async def _add_tweet(
 
         if tweet_json.tweet_media_ids:
             await update_tweet_id(
-                session=session, tweet_id=tweet_id, media_ids=tweet_json.tweet_media_ids
+                session=session,
+                tweet_id=tweet_id,
+                api_key=api_key,
+                media_ids=tweet_json.tweet_media_ids,
             )
 
         return {"result": True, "tweet_id": tweet_id}

@@ -9,4 +9,5 @@ class MediaModel(BaseModel):
     tweet_id: Mapped[int] = MappedColumn(
         Integer(), ForeignKey("tweets.id"), nullable=True
     )
+    user_id: Mapped[int] = MappedColumn(Integer(), ForeignKey("users.id"))
     src: Mapped[str]

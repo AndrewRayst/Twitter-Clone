@@ -75,7 +75,7 @@ def send_image_to_storage(
         image_src = get_random_string()
 
     else:
-        image_src = ""
+        image_src = "temporary_image_src"
 
     # running task for updating image source in database
     update_image_src_in_database.delay(

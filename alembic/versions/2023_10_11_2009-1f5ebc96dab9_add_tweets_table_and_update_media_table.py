@@ -28,7 +28,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
     op.add_column('media', sa.Column('tweet_id', sa.Integer(), nullable=True))
+    op.add_column('media', sa.Column('user_id', sa.Integer()))
     op.create_foreign_key(None, 'media', 'tweets', ['tweet_id'], ['id'])
+    op.create_foreign_key(None, 'media', 'users', ['user_id'], ['id'])
     # ### end Alembic commands ###
 
 
