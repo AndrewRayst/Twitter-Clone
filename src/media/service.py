@@ -1,3 +1,4 @@
+from loguru import logger
 from sqlalchemy import Select, Update, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +26,7 @@ async def add_image_media(session: AsyncSession, api_key: str, image_src: str) -
         raise ExistError("The user who wants to add image media doesn't exist")
 
     # Adding image to database
-    instance: MediaModel = MediaModel(src=image_src)
+    instance: MediaModel = MediaModel(src=image_src, user_id=user.id)
     session.add(instance)
     await session.commit()
 
@@ -33,20 +34,36 @@ async def add_image_media(session: AsyncSession, api_key: str, image_src: str) -
 
 
 async def update_tweet_id(
-    session: AsyncSession, tweet_id: int, media_ids: list[int]
+    session: AsyncSession,
+    tweet_id: int,
+    api_key: str,
+    media_ids: list[int]
 ) -> None:
     """
     The service for updating the twitter_id column
     in records of 'media' table by the transmitted identifiers.
-    !!! Don't use this without checking for the existence of
-        a user with the passed api_key !!!
     :param session: session to connect to the database.
     :param tweet_id: tweet ID for attaching media files
+    :param api_key: API key of the user who wants to update tweet_id.
     :param media_ids: media IDs for attaching to a tweet
     :return: None
     """
+    # Getting user who wants to update tweet_id
+    query: Select = select(UserModel).where(UserModel.api_key_hash == get_hash(api_key))
+
+    user: UserModel = await session.scalar(query)
+
+    # Checking the existence of a user
+    if not user:
+        raise ExistError("The user doesn't exist")
+
+    # updating tweet_id
     statement: Update = (
-        update(MediaModel).where(MediaModel.id.in_(media_ids)).values(tweet_id=tweet_id)
+        update(MediaModel)
+        .where(MediaModel.user_id == user.id)
+        .where(MediaModel.id.in_(media_ids))
+        .where(MediaModel.tweet_id == None)
+        .values(tweet_id=tweet_id)
     )
     await session.execute(statement)
     await session.commit()
