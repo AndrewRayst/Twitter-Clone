@@ -8,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ../.env
+      - ../environments/.env
 
   pgadmin:
     image: dpage/pgadmin4
@@ -16,7 +16,7 @@ services:
     ports:
       - "2345:80"
     env_file:
-      - ../.env
+      - ../environments/.env
     depends_on:
       - database
 
@@ -25,6 +25,9 @@ services:
     container_name: redis_app
     restart: always
     stop_signal: SIGKILL
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    env_file:
+      - ../environments/.env
     ports:
       - "6379:6379"
 
@@ -39,7 +42,7 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - ../.env
+      - ../environments/.env
     depends_on:
       - database
       - redis
@@ -53,7 +56,7 @@ services:
     volumes:
       - ../logs/:/logs
     env_file:
-      - ../.env
+      - ../environments/.env
     depends_on:
       - redis
 
@@ -64,10 +67,7 @@ services:
     container_name: flower_app
     command: celery --app=src.celery_init:celery_app flower
     env_file:
-      - ../.env
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+      - ../environments/.env.flower
     depends_on:
       - celery
       - redis
@@ -96,7 +96,7 @@ services:
     volumes:
       - ../grafana/data:/var/lib/grafana
     env_file:
-      - ../.env
+      - ../environments/.env
     depends_on:
       - prometheus
     user: "1000"
