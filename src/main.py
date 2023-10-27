@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from loguru import logger
+from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 
 from src import config
@@ -42,8 +43,13 @@ application.include_router(media_router)
 application.include_router(tweets_router)
 
 
+metrics_instrument = Instrumentator().instrument(application)
+
+
 @application.on_event("startup")
 async def startup() -> None:
+    metrics_instrument.expose(application)
+
     redis_url = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
     redis = aioredis.from_url(redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")

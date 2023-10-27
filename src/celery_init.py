@@ -9,4 +9,5 @@ celery_app = Celery(
     "tasks",
     include=TASK_IMPORTS,
     broker=REDIS_URL,
+    backend=REDIS_URL,
 )
