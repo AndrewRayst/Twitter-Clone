@@ -1,4 +1,3 @@
-from loguru import logger
 from sqlalchemy import Select, Update, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,10 +33,7 @@ async def add_image_media(session: AsyncSession, api_key: str, image_src: str) -
 
 
 async def update_tweet_id(
-    session: AsyncSession,
-    tweet_id: int,
-    api_key: str,
-    media_ids: list[int]
+    session: AsyncSession, tweet_id: int, api_key: str, media_ids: list[int]
 ) -> None:
     """
     The service for updating the twitter_id column
@@ -62,7 +58,7 @@ async def update_tweet_id(
         update(MediaModel)
         .where(MediaModel.user_id == user.id)
         .where(MediaModel.id.in_(media_ids))
-        .where(MediaModel.tweet_id == None)
+        .where(MediaModel.tweet_id.is_(None))
         .values(tweet_id=tweet_id)
     )
     await session.execute(statement)
