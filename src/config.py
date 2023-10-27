@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv("./environments/.env")
 
 TESTING: bool = os.getenv("TESTING", False) == "True"
 
@@ -26,7 +26,11 @@ DB_URL_TEST: str = "postgresql+asyncpg://{}:{}@{}:5432/{}".format(
     POSTGRES_DB,
 )
 
+
 REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT: str = os.getenv("REDIS_MASTER_PORT_NUMBER", "6379")
-REDIS_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}"
-REDIS_URL_TEST: str = f"redis://0.0.0.0:{REDIS_PORT}"
+REDIS_USER: str = os.getenv("REDIS_USER", "")
+REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD", "")
+
+REDIS_URL: str = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+REDIS_URL_TEST: str = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@0.0.0.0:{REDIS_PORT}"

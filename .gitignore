@@ -2,7 +2,8 @@
 /.mypy_cache/
 
 /.idea/
-/.env
+/environments/
+.env
 
 /logs/
 /database_data/
