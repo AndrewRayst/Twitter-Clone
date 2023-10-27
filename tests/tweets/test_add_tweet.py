@@ -1,12 +1,42 @@
 from typing import Sequence
 
 from httpx import AsyncClient
-from sqlalchemy import select, Select
+from sqlalchemy import select, Select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared import TweetTestDataClass
+from shared import TweetTestDataClass, TUsersTest
 from src.media.models import MediaModel
 from src.tweets.models import TweetModel
+
+
+async def test_add_tweet_with_another_user(
+    tweet_data: TweetTestDataClass,
+    image_ids: list[int],
+    users: TUsersTest,
+    async_session: AsyncSession,
+    async_client: AsyncClient
+) -> None:
+    response = await async_client.post(
+        "tweets/",
+        params={"api_key": users[1].api_key},
+        json={
+            "tweet_data": tweet_data.content,
+            "tweet_media_ids": image_ids,
+        }
+    )
+
+    assert response.status_code == 201
+
+    response_data: dict = response.json()
+    assert response_data.get("result") is True
+
+    image_count_query: Select = (
+        select(func.count(MediaModel.id))
+        .where(MediaModel.id.in_(image_ids))
+        .where(MediaModel.tweet_id == response_data.get("tweet_id"))
+    )
+    image_count: int = await async_session.scalar(image_count_query)
+    assert image_count == 0
 
 
 async def test_add_tweet_without_user(

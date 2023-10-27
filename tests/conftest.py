@@ -82,13 +82,13 @@ async def users() -> TUsersTest:
 
 
 @pytest.fixture(scope="module")
-async def image_ids(async_session: AsyncSession) -> list[int]:
+async def image_ids(async_session: AsyncSession, users: TUsersTest) -> list[int]:
     """
     The fixture for getting ids of images.
     :return: images ids
     """
     images: list[MediaModel] = [
-        MediaModel(src=get_random_string())
+        MediaModel(src=get_random_string(), user_id=users[0].id)
         for _ in range(randint(0, 3))
     ]
 
