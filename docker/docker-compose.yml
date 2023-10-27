@@ -62,11 +62,41 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     container_name: flower_app
-    command: celery --app=src.celery_init:celery_app flower --basic-auth=user:user
+    command: celery --app=src.celery_init:celery_app flower
     env_file:
       - ../.env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
     depends_on:
       - celery
       - redis
     ports:
       - "5555:5555"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../prometheus/config.yml:/etc/prometheus/config.yml
+    command:
+      - '--config.file=/etc/prometheus/config.yml'
+    depends_on:
+      - server_app
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../grafana/data:/var/lib/grafana
+    env_file:
+      - ../.env
+    depends_on:
+      - prometheus
+    user: "1000"
