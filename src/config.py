@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TESTING: bool = os.getenv("TESTING", False).lower() == "true"
+TESTING: bool = os.getenv("TESTING", False) == "True"
 
-DEBUG: bool = os.getenv("FASTAPI_DEBUG", False).lower() == "true"
+DEBUG: bool = os.getenv("FASTAPI_DEBUG", False) == "True"
 STATIC_FILES_PATH: str = os.getenv("FASTAPI_STATIC_FILES_PATH", "static")
 
 POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
