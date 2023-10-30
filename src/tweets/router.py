@@ -8,6 +8,7 @@ from src.database.core import get_session
 from src.exceptions import AccessError, ConflictError, ExistError
 from src.media.service import update_tweet_id
 from src.schemas import SuccessResponseSchema
+from src.tweets.models import TweetModel
 from src.tweets.schemas import (
     SuccessTweetPostResponseSchema,
     SuccessTweetsResponseSchema,
@@ -15,6 +16,7 @@ from src.tweets.schemas import (
 )
 from src.tweets.service import (
     add_tweet,
+    check_and_get_tweet,
     delete_tweet,
     get_tweets,
     like_tweet,
@@ -22,6 +24,11 @@ from src.tweets.service import (
 )
 from src.users.models import UserModel
 from src.users.service import check_and_get_user_by_api_key
+from src.utils import (
+    return_custom_exception,
+    return_server_exception,
+    return_user_exception,
+)
 
 router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
 
@@ -47,11 +54,15 @@ async def _add_tweet(
             error_message="The user who wants to add the tweet doesn't exist",
         )
 
+        logger.info("adding the new tweet")
+        await logger.complete()
         tweet_id: int = await add_tweet(
-            session=session, api_key=api_key, tweet_content=tweet_json.tweet_data
+            session=session, user=user, tweet_content=tweet_json.tweet_data
         )
 
         if tweet_json.tweet_media_ids:
+            logger.info("updating tweet_id for linked media")
+            await logger.complete()
             await update_tweet_id(
                 session=session,
                 tweet_id=tweet_id,
@@ -61,26 +72,9 @@ async def _add_tweet(
 
         return {"result": True, "tweet_id": tweet_id}
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.delete("/{tweet_id}", response_model=SuccessResponseSchema, status_code=200)
@@ -95,30 +89,21 @@ async def _delete_tweet(
     :param api_key: API key of the user who wants to delete the tweet
     """
     try:
-        await delete_tweet(session=session, tweet_id=tweet_id, api_key=api_key)
+        logger.info("getting the user by api key")
+        await logger.complete()
+        user: UserModel = await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The user who wants to delete the tweet doesn't exist",
+        )
+
+        await delete_tweet(session=session, tweet_id=tweet_id, user=user)
 
         return {"result": True}
     except (ExistError, AccessError) as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.get("/", response_model=SuccessTweetsResponseSchema, status_code=200)
@@ -136,6 +121,17 @@ async def _get_tweets(
     :return: id of tweet in database
     """
     try:
+        # Checking limit and offset
+        if limit <= 0:
+            raise ValueError("the limit must be greater than 0.")
+        elif limit > 20:
+            raise ValueError("the limit must be equal to or less than 20.")
+
+        if offset < 0:
+            raise ValueError("the offset must be positive number.")
+
+        logger.info("getting tweets")
+        await logger.complete()
         tweets = await get_tweets(
             session=session, api_key=api_key, limit=limit, offset=offset
         )
@@ -143,37 +139,15 @@ async def _get_tweets(
         return {"result": True, "tweets": tweets}
 
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except ValueError as exc:
-        logger.info(f"{str(exc)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "ValueError",
-                "error_message": str(exc),
-            },
+        return await return_custom_exception(
+            exception=exc,
+            message=exc.__str__(),
+            error_type="ValueError",
         )
     except Exception as exc:
-        logger.warning(f"string representation: {str(exc)}, args: {str(exc.args)}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.post("/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=201)
@@ -186,43 +160,35 @@ async def _like_tweet(
     :param api_key: API key of the user who wants to like the tweet
     """
     try:
-        await like_tweet(session=session, tweet_id=tweet_id, api_key=api_key)
-        return {
-            "result": True,
-        }
-    except (ExistError, ConflictError) as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
+        logger.info("getting user by api key")
         await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
+        user: UserModel = await check_and_get_user_by_api_key(
+            session=session, api_key=api_key
         )
-    except IntegrityError:
-        logger.info("User has already liked the tweet")
+
+        logger.info("getting tweet by id")
         await logger.complete()
-        return JSONResponse(
+        tweet: TweetModel = await check_and_get_tweet(
+            session=session, tweet_id=tweet_id
+        )
+
+        logger.info("liking tweet")
+        await logger.complete()
+        await like_tweet(session=session, tweet=tweet, user=user)
+
+        return {"result": True}
+
+    except (ExistError, ConflictError) as exc:
+        return await return_user_exception(exception=exc)
+    except IntegrityError as exc:
+        return await return_custom_exception(
+            exception=exc,
+            message="User has already liked the tweet",
+            error_type="ConflictError",
             status_code=409,
-            content={
-                "result": False,
-                "error_type": "ConflictError",
-                "error_message": "User has already liked the tweet",
-            },
         )
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.delete(
@@ -237,29 +203,24 @@ async def _unlike_tweet(
     :param api_key: API key of the user who wants to unlike the tweet
     """
     try:
-        await unlike_tweet(session=session, tweet_id=tweet_id, api_key=api_key)
-        return {
-            "result": True,
-        }
+        logger.info("getting user by api key")
+        await logger.complete()
+        user: UserModel = await check_and_get_user_by_api_key(
+            session=session, api_key=api_key
+        )
+
+        logger.info("getting tweet by id")
+        await logger.complete()
+        tweet: TweetModel = await check_and_get_tweet(
+            session=session, tweet_id=tweet_id
+        )
+
+        logger.info("unliking tweet")
+        await logger.complete()
+        await unlike_tweet(session=session, tweet=tweet, user=user)
+
+        return {"result": True}
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
