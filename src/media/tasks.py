@@ -1,38 +1,17 @@
 import io
-from asyncio import current_task, get_event_loop
-from contextlib import asynccontextmanager
-from typing import AnyStr, AsyncGenerator
+from asyncio import get_event_loop
+from typing import AnyStr
 
 import PIL
 from loguru import logger
 from PIL import Image
-from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 
 from src import config
-from src.celery_init import celery_app
-from src.database.core import session_maker
+from src.celery_init import celery_app, scoped_session
 from src.media.service import update_image_src
 from src.utils import get_random_string
 
 loop = get_event_loop()
-
-
-@asynccontextmanager
-async def scoped_session() -> AsyncGenerator[AsyncSession, None]:
-    scoped_factory = async_scoped_session(
-        session_maker,
-        scopefunc=current_task,
-    )
-    try:
-        async with scoped_factory() as session:
-            yield session
-    finally:
-        await scoped_factory.remove()
-
-
-async def update_image_src_in_database_async(image_id: int, image_src: str) -> None:
-    async with scoped_session() as session:
-        await update_image_src(image_id=image_id, image_src=image_src, session=session)
 
 
 @celery_app.task
@@ -82,7 +61,6 @@ def send_image_to_storage(
         image_id=image_id,
         image_src=image_src,
     )
-    logger.info("send_image_to_storage")
 
 
 @celery_app.task
@@ -94,3 +72,11 @@ def update_image_src_in_database(
     loop.run_until_complete(
         update_image_src_in_database_async(image_id=image_id, image_src=image_src)
     )
+
+
+async def update_image_src_in_database_async(image_id: int, image_src: str) -> None:
+    logger.info("updating image src in the database")
+    await logger.complete()
+
+    async with scoped_session() as session:
+        await update_image_src(image_id=image_id, image_src=image_src, session=session)
