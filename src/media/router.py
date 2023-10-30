@@ -9,6 +9,9 @@ from src.media.config import LOADING_IMAGE_SRC
 from src.media.schemas import SuccessMediaResponseSchema
 from src.media.service import add_image_media
 from src.media.tasks import process_image
+from src.users.models import UserModel
+from src.users.service import check_and_get_user_by_api_key
+from src.utils import return_server_exception, return_user_exception
 
 router: APIRouter = APIRouter(
     prefix="/api/medias",
@@ -29,31 +32,27 @@ async def _add_media(
     :return: id of media in database
     """
     try:
-        image_id: int = await add_image_media(
-            session=session, api_key=api_key, image_src=LOADING_IMAGE_SRC
+        logger.info("getting the user by api key")
+        await logger.complete()
+        user: UserModel = await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The user who wants to add image media doesn't exist",
         )
 
+        logger.info("adding image to the database")
+        await logger.complete()
+        image_id: int = await add_image_media(
+            session=session, user=user, image_src=LOADING_IMAGE_SRC
+        )
+
+        logger.info("creating the process of the image")
+        await logger.complete()
         process_image.delay(image_id=image_id, image_data=file.file.read())
 
         return {"result": True, "media_id": image_id}
+
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)

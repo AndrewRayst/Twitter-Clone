@@ -20,6 +20,8 @@ from src.tweets.service import (
     like_tweet,
     unlike_tweet,
 )
+from src.users.models import UserModel
+from src.users.service import check_and_get_user_by_api_key
 
 router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
 
@@ -37,6 +39,14 @@ async def _add_tweet(
     :return: id of tweet in database
     """
     try:
+        logger.info("getting the user by api key")
+        await logger.complete()
+        user: UserModel = await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The user who wants to add the tweet doesn't exist",
+        )
+
         tweet_id: int = await add_tweet(
             session=session, api_key=api_key, tweet_content=tweet_json.tweet_data
         )
@@ -45,7 +55,7 @@ async def _add_tweet(
             await update_tweet_id(
                 session=session,
                 tweet_id=tweet_id,
-                api_key=api_key,
+                user=user,
                 media_ids=tweet_json.tweet_media_ids,
             )
 

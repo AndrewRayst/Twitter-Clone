@@ -64,6 +64,41 @@ async def get_user(session: AsyncSession, user_id: int, api_key: str) -> UserMod
     return user
 
 
+async def get_user_by_api_key(api_key: str, session: AsyncSession) -> UserModel:
+    """
+    the service for getting user from the database by api key.
+    :param api_key: API key of the user.
+    :param session: session to connect to the database.
+    :return: user model
+    """
+    # Getting user
+    query: Select = select(UserModel).where(UserModel.api_key_hash == get_hash(api_key))
+    return await session.scalar(query)
+
+
+async def check_and_get_user_by_api_key(
+    api_key: str,
+    session: AsyncSession,
+    error_message: str = "The user doesn't exist",
+) -> UserModel:
+    """
+    the service for checking an existence of the user and
+    getting user from the database by api key.
+    if the user is not found, an error is thrown.
+    :param api_key: API key of the user.
+    :param session: session to connect to the database.
+    :param error_message: message that will be added to the exception
+    if the user is not found
+    :return: user model
+    """
+    # Getting user
+    user: UserModel = await get_user_by_api_key(api_key=api_key, session=session)
+    # Checking the existence of the user
+    if not user:
+        raise ExistError(error_message)
+    return user
+
+
 async def follow_user(session: AsyncSession, user_id: int, api_key: str) -> None:
     """
     The service for following user
