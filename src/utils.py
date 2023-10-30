@@ -36,6 +36,29 @@ async def return_user_exception(
     )
 
 
+async def return_custom_exception(
+    exception: Exception,
+    message: str,
+    status_code: int = 400,
+    error_type: str = "",
+) -> JSONResponse:
+    logger.info(
+        f"string representation: {exception.__str__()}, "
+        f"args: {str(exception.args)}, "
+        f"message: {message}"
+    )
+    await logger.complete()
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "result": False,
+            "error_type": error_type if error_type else "Exception",
+            "error_message": message,
+        },
+    )
+
+
 async def return_server_exception(
     exception: Exception, status_code: int = 500, message: str = ""
 ) -> JSONResponse:

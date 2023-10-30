@@ -9,7 +9,18 @@ from src.exceptions import ConflictError, ExistError
 from src.schemas import SuccessResponseSchema
 from src.users.models import UserModel
 from src.users.schemas import SuccessResponseUserSchema
-from src.users.service import follow_user, get_me, get_user, unfollow_user
+from src.users.service import (
+    check_and_get_user_by_api_key,
+    follow_user,
+    get_me,
+    get_user,
+    unfollow_user,
+)
+from src.utils import (
+    return_custom_exception,
+    return_server_exception,
+    return_user_exception,
+)
 
 router: APIRouter = APIRouter(
     prefix="/api/users",
@@ -27,30 +38,16 @@ async def _get_my_profile(
     :return: the user profile
     """
     try:
-        user: UserModel = await get_me(session=session, api_key=api_key)
-        return {"result": True, "user": user}
+        logger.info("getting the user own profile")
+        await logger.complete()
+        return {
+            "result": True,
+            "user": await get_me(session=session, api_key=api_key),
+        }
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.get("/{user_id}", response_model=SuccessResponseUserSchema, status_code=200)
@@ -64,32 +61,24 @@ async def _get_user_profile(
     :return: the user profile
     """
     try:
-        user: UserModel = await get_user(
-            session=session, user_id=user_id, api_key=api_key
+        logger.info("getting the user who wants to retrieve the profile")
+        await logger.complete()
+        await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The user who wants to retrieve the profile doesn't exist",
         )
-        return {"result": True, "user": user}
+
+        logger.info("getting the user profile by another user")
+        await logger.complete()
+        return {
+            "result": True,
+            "user": await get_user(session=session, user_id=user_id),
+        }
     except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
-        )
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.post("/{user_id}/follow", response_model=SuccessResponseSchema, status_code=201)
@@ -102,43 +91,31 @@ async def _follow(
     :param api_key: API key of the user who wants to follow
     """
     try:
-        await follow_user(session=session, user_id=user_id, api_key=api_key)
-        return {
-            "result": True,
-        }
-    except (ExistError, ConflictError) as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
+        logger.info("getting the user who wants to follow")
         await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
+        follower: UserModel = await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The follower doesn't exist",
         )
-    except IntegrityError:
-        logger.info("Follower has already followed the user")
+
+        logger.info("following one user by another")
         await logger.complete()
-        return JSONResponse(
+        await follow_user(session=session, user_id=user_id, follower=follower)
+
+        return {"result": True}
+
+    except (ExistError, ConflictError) as exc:
+        return await return_user_exception(exception=exc)
+    except IntegrityError as exc:
+        return await return_custom_exception(
+            exception=exc,
+            message="Follower has already followed the user",
+            error_type="ConflictError",
             status_code=409,
-            content={
-                "result": False,
-                "error_type": "ConflictError",
-                "error_message": "Follower has already followed the user",
-            },
         )
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
 
 
 @router.post(
@@ -148,33 +125,26 @@ async def _unfollow(
     user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
-    The endpoint for following user
+    The endpoint for unfollowing user
     :param user_id: id of the user to follow
-    :param api_key: API key of the user who wants to follow
+    :param api_key: API key of the user who wants to unfollow
     """
     try:
-        await unfollow_user(session=session, user_id=user_id, api_key=api_key)
-        return {
-            "result": True,
-        }
-    except ExistError as exc:
-        logger.info(f"error name: {exc.get_name()}, error message: {exc.get_message()}")
+        logger.info("getting the user who wants to unfollow")
         await logger.complete()
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": exc.get_name(),
-                "error_message": exc.get_message(),
-            },
+        follower: UserModel = await check_and_get_user_by_api_key(
+            api_key=api_key,
+            session=session,
+            error_message="The follower doesn't exist",
         )
+
+        logger.info("unfollowing one user by another")
+        await logger.complete()
+        await unfollow_user(session=session, user_id=user_id, follower=follower)
+
+        return {"result": True}
+
+    except ExistError as exc:
+        return await return_user_exception(exception=exc)
     except Exception as exc:
-        logger.warning(f"string representation: {exc.__str__()}, args: {str(exc.args)}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "result": False,
-                "error_type": "Exception",
-                "error_message": "Oops, something went wrong :(\nTry again please",
-            },
-        )
+        return await return_server_exception(exception=exc)
