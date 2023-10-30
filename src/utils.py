@@ -63,7 +63,7 @@ async def return_server_exception(
     exception: Exception, status_code: int = 500, message: str = ""
 ) -> JSONResponse:
     logger.warning(
-        f"string representation: {exception.__str__()}, args: {str(exception.args)}"
+        f"string representation: {exception.__str__()}, args: {exception.args}"
     )
     await logger.complete()
 
