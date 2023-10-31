@@ -47,6 +47,18 @@ services:
       - database
       - redis
 
+  web:
+    container_name: web
+    image: nginx:alpine
+    ports:
+      - "8000:80"
+    depends_on:
+      - server_app
+    restart: always
+    volumes:
+      - ../configs/nginx.config.conf:/etc/nginx/nginx.conf
+      - ../static:/static
+
   celery:
     build:
       context: ../
@@ -81,9 +93,9 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ../prometheus/config.yml:/etc/prometheus/config.yml
+      - ../configs/prometheus.config.yml:/etc/prometheus/prometheus.config.yml
     command:
-      - '--config.file=/etc/prometheus/config.yml'
+      - '--config.file=/etc/prometheus/prometheus.config.yml'
     depends_on:
       - server_app
 

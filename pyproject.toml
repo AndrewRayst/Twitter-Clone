@@ -21,6 +21,7 @@ flower = "^2.0.1"
 pillow = "^10.1.0"
 prometheus-fastapi-instrumentator = "^6.1.0"
 sentry-sdk = {extras = ["fastapi"], version = "^1.32.0"}
+gunicorn = "^21.2.0"
 
 
 [tool.poetry.group.dev.dependencies]

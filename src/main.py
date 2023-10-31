@@ -2,7 +2,6 @@ from datetime import datetime
 
 import sentry_sdk
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from loguru import logger
@@ -42,12 +41,6 @@ application: FastAPI = FastAPI(
     title="Twitter clone",
     version="0.1.0",
     description="Thesis by Andrey Telitsin for Skillbox",
-)
-
-application.mount(
-    "/static",
-    StaticFiles(directory=config.STATIC_FILES_PATH),
-    name="static",
 )
 
 
