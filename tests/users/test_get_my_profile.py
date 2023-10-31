@@ -3,14 +3,52 @@ from httpx import AsyncClient
 from tests.users.conftest import TUsersTest
 
 
-async def test_get_my_profile(
+async def test_get_my_profile_without_api_key(async_client: AsyncClient) -> None:
+    """
+    Test for getting own user profile without an api key.
+    :param async_client: client for requesting.
+    :return: None
+    """
+    response = await async_client.get("users/me")
+
+    assert response.status_code == 422
+
+
+async def test_get_my_profile_without_existing_api_key(
+    async_client: AsyncClient
+) -> None:
+    """
+    Test for getting own user profile without an existing api key.
+    :param async_client: client for requesting.
+    :return: None
+    """
+    response = await async_client.get(
+        "users/me",
+        params={
+            "api_key": ""
+        },
+    )
+
+    assert response.status_code == 400
+
+    response_json: dict = response.json()
+    assert response_json.get("result") is False
+
+
+async def test_get_my_profile_with_correct_data(
     async_client: AsyncClient, followed_users: TUsersTest
 ) -> None:
+    """
+    Test for getting own user profile with correct data.
+    :param async_client: client for requesting.
+    :param followed_users: generated API keys for two users.
+    :return: None
+    """
     response = await async_client.get(
         "users/me",
         params={
             "api_key": followed_users[0].api_key
-        }
+        },
     )
 
     assert response.status_code == 200

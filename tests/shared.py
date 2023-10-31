@@ -1,4 +1,5 @@
 from src.tweets.models import TweetModel
+from src.users.models import UserModel
 from src.utils import get_hash, get_random_string
 
 
@@ -13,11 +14,11 @@ class UserTestDataClass:
         self.api_key = get_random_string()
         self.api_key_hash = get_hash(self.api_key)
 
-    def __dict__(self) -> dict:
-        return {
-            "api_key_hash": self.api_key_hash,
-            "name": self.name,
-        }
+    def get_instance(self) -> UserModel:
+        return UserModel(
+            name=self.name,
+            api_key_hash=self.api_key_hash,
+        )
 
 
 class TweetTestDataClass:

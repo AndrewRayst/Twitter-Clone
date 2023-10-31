@@ -52,6 +52,28 @@ async def tweet(
 
 
 @pytest.fixture(scope="module")
+async def liked_tweet(
+    tweet: TweetTestDataClass,
+    users: TUsersTest,
+    async_session: AsyncSession
+) -> TweetTestDataClass:
+    """
+    The fixture for adding tweet in database and getting tweet data
+    :param users: user who added in database
+    :param tweet: the tweet data to like
+    :param async_session: async session for connecting to database
+    :return: tweet data
+    """
+    instance: TweetLikeModel = TweetLikeModel(
+        tweet_id=tweet.id,
+        user_id=users[1].id
+    )
+    async_session.add(instance)
+    await async_session.commit()
+    return tweet
+
+
+@pytest.fixture(scope="module")
 async def tweets(
     users: TUsersTest,
     async_session: AsyncSession

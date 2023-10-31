@@ -9,11 +9,14 @@ from src.media.models import MediaModel
 from src.tweets.models import TweetModel
 
 
-async def test_add_tweet_without_user(
-    tweet: TweetTestDataClass,
-    async_session: AsyncSession,
-    async_client: AsyncClient
+async def test_delete_tweet_without_user(
+    tweet: TweetTestDataClass, async_client: AsyncClient
 ) -> None:
+    """
+    Test for deleting tweet without the user.
+    :param async_client: client for requesting.
+    :return: None
+    """
     response = await async_client.delete(
         f"tweets/{tweet.id}",
     )
@@ -21,11 +24,14 @@ async def test_add_tweet_without_user(
     assert response.status_code == 422
 
 
-async def test_add_tweet_without_existing_user(
-    tweet: TweetTestDataClass,
-    async_session: AsyncSession,
-    async_client: AsyncClient
+async def test_delete_tweet_without_existing_user(
+    tweet: TweetTestDataClass, async_client: AsyncClient
 ) -> None:
+    """
+    Test for deleting tweet without the existing user.
+    :param async_client: client for requesting.
+    :return: None
+    """
     response = await async_client.delete(
         f"tweets/{tweet.id}",
         params={"api_key": ""},
@@ -37,11 +43,17 @@ async def test_add_tweet_without_existing_user(
     assert response_data.get("result") is False
 
 
-async def test_add_tweet_with_correct_data(
+async def test_delete_tweet_with_correct_data(
     tweet: TweetTestDataClass,
     async_session: AsyncSession,
-    async_client: AsyncClient
+    async_client: AsyncClient,
 ) -> None:
+    """
+    Test for deleting tweet with the correct data.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.delete(
         f"tweets/{tweet.id}",
         params={"api_key": tweet.user.api_key},

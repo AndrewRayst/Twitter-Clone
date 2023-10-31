@@ -16,6 +16,15 @@ async def test_add_tweet_with_another_user(
     async_session: AsyncSession,
     async_client: AsyncClient
 ) -> None:
+    """
+    Test for adding tweet with another user.
+    user who didn't add images
+    :param tweet_data: data for adding the tweet.
+    :param image_ids: the tweet Image IDs.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.post(
         "tweets/",
         params={"api_key": users[1].api_key},
@@ -45,6 +54,14 @@ async def test_add_tweet_without_user(
         async_session: AsyncSession,
         async_client: AsyncClient
 ) -> None:
+    """
+    Test for adding tweet without the user.
+    :param tweet_data: data for adding the tweet.
+    :param image_ids: the tweet Image IDs.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.post(
         "tweets/",
         json={
@@ -62,6 +79,14 @@ async def test_add_tweet_without_existing_user(
         async_session: AsyncSession,
         async_client: AsyncClient
 ) -> None:
+    """
+    Test for adding tweet without the existing user.
+    :param tweet_data: data for adding the tweet.
+    :param image_ids: the tweet Image IDs.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.post(
         "tweets/",
         params={"api_key": ""},
@@ -82,6 +107,13 @@ async def test_add_tweet_without_images(
     async_session: AsyncSession,
     async_client: AsyncClient
 ) -> None:
+    """
+    Test for adding tweet with correct data and without media.
+    :param tweet_data: data for adding the tweet.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.post(
         "tweets/",
         params={"api_key": tweet_data.user.api_key},
@@ -130,6 +162,14 @@ async def test_add_tweet_with_correct_data(
     async_session: AsyncSession,
     async_client: AsyncClient
 ) -> None:
+    """
+    Test for adding tweet with correct data and media.
+    :param tweet_data: data for adding the tweet.
+    :param image_ids: the tweet Image IDs.
+    :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
+    :return: None
+    """
     response = await async_client.post(
         "tweets/",
         params={"api_key": tweet_data.user.api_key},

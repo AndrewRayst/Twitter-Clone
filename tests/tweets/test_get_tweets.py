@@ -1,22 +1,24 @@
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared import TweetTestDataClass, TUsersTest
 
 
 async def test_get_5_tweets_with_correct_data(
-    tweets: list[TweetTestDataClass], async_client: AsyncClient
+    tweets: list[TweetTestDataClass],
+    users: TUsersTest,
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve 5 tweets.
+    Test for checking the endpoint for retrieving 5 tweets.
     :param tweets: tweets which added in database
+    :param users: generated users
     :param async_client: client for requesting.
     :return: None
     """
     response = await async_client.get(
         "tweets/",
         params={
-            "api_key": tweets[0].user.api_key,
+            "api_key": users[0].api_key,
             "limit": 5,
             "offset": 0,
         }
@@ -32,9 +34,9 @@ async def test_get_5_tweets_with_correct_data(
 
 async def test_get_tweets_without_user(async_client: AsyncClient) -> None:
     """
-    testing to retrieve tweets without user.
+    Test for checking the endpoint for retrieving tweets without user.
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
@@ -49,9 +51,9 @@ async def test_get_tweets_without_user(async_client: AsyncClient) -> None:
 
 async def test_get_tweets_without_existing_user(async_client: AsyncClient) -> None:
     """
-    testing to retrieve tweets without existing user.
+    Test for checking the endpoint for retrieving tweets without existing user.
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
@@ -67,18 +69,21 @@ async def test_get_tweets_without_existing_user(async_client: AsyncClient) -> No
 
 
 async def test_get_tweets_without_limit_and_offset(
-    tweets: list[TweetTestDataClass], async_client: AsyncClient
+    tweets: list[TweetTestDataClass],
+    users: TUsersTest,
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve tweets without limit and offset.
+    Test for checking the endpoint for retrieving tweets without limit and offset.
     :param tweets: tweets which added in database
+    :param users: generated users
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
         params={
-            "api_key": tweets[0].user.api_key,
+            "api_key": users[0].api_key,
         }
     )
 
@@ -91,18 +96,21 @@ async def test_get_tweets_without_limit_and_offset(
 
 
 async def test_get_tweets_with_negative_limit(
-    tweets: list[TweetTestDataClass], async_client: AsyncClient
+    tweets: list[TweetTestDataClass],
+    users: TUsersTest,
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve tweets with negative limit.
+    Test for checking the endpoint for retrieving tweets with negative limit.
     :param tweets: tweets which added in database
+    :param users: users who added in database
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
         params={
-            "api_key": tweets[0].user.api_key,
+            "api_key": users[0].api_key,
             "limit": -1,
             "offset": 0,
         }
@@ -113,18 +121,21 @@ async def test_get_tweets_with_negative_limit(
 
 
 async def test_get_tweets_with_limit_greater_20(
-    tweets: list[TweetTestDataClass], async_client: AsyncClient
+    tweets: list[TweetTestDataClass],
+    users: TUsersTest,
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve tweets with limit greater than 20.
+    Test for checking the endpoint for retrieving tweets with limit greater than 20.
     :param tweets: tweets which added in database
+    :param users: users who added in database
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
         params={
-            "api_key": tweets[0].user.api_key,
+            "api_key": users[0].api_key,
             "limit": 21,
             "offset": 0,
         }
@@ -135,18 +146,21 @@ async def test_get_tweets_with_limit_greater_20(
 
 
 async def test_get_tweets_with_negative_offset(
-    tweets: list[TweetTestDataClass], async_client: AsyncClient
+    tweets: list[TweetTestDataClass],
+    users: TUsersTest,
+    async_client: AsyncClient
 ) -> None:
     """
-    testing to retrieve tweets with negative offset.
+    Test for checking the endpoint for retrieving tweets with negative offset.
     :param tweets: tweets which added in database
+    :param users: users who added in database
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
         params={
-            "api_key": tweets[0].user.api_key,
+            "api_key": users[0].api_key,
             "limit": 10,
             "offset": -1,
         }
@@ -159,16 +173,14 @@ async def test_get_tweets_with_negative_offset(
 async def test_get_tweets_with_correct_data_page_1(
     tweets: list[TweetTestDataClass],
     users: TUsersTest,
-    async_session: AsyncSession,
-    async_client: AsyncClient
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve tweets with pagination. Page #1.
+    Test for checking the endpoint for retrieving tweets with pagination. Page #1.
     :param tweets: tweets which added in database
     :param users: users who added in database
-    :param async_session: session for connecting to database
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
@@ -210,16 +222,14 @@ async def test_get_tweets_with_correct_data_page_1(
 async def test_get_tweets_with_correct_data_page_2(
     tweets: list[TweetTestDataClass],
     users: TUsersTest,
-    async_session: AsyncSession,
-    async_client: AsyncClient
+    async_client: AsyncClient,
 ) -> None:
     """
-    testing to retrieve tweets with pagination. Page #2.
+    Test for checking the endpoint for retrieving tweets with pagination. Page #2.
     :param tweets: tweets which added in database
     :param users: users who added in database
-    :param async_session: session for connecting to database
     :param async_client: client for requesting.
-    :return:
+    :return: None
     """
     response = await async_client.get(
         "tweets/",
