@@ -81,9 +81,9 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ../prometheus/config.yml:/etc/prometheus/config.yml
+      - ../prometheus.config.yml:/etc/prometheus/prometheus.config.yml
     command:
-      - '--config.file=/etc/prometheus/config.yml'
+      - '--config.file=/etc/prometheus/prometheus.config.yml'
     depends_on:
       - server_app
 
