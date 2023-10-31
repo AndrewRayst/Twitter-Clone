@@ -9,6 +9,8 @@ TESTING: bool = os.getenv("TESTING", False) == "True"
 DEBUG: bool = os.getenv("FASTAPI_DEBUG", False) == "True"
 STATIC_FILES_PATH: str = os.getenv("FASTAPI_STATIC_FILES_PATH", "static")
 
+SENTRY_DNS: str = os.getenv("SENTRY_DNS", "")
+
 POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
 POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
 POSTGRES_DB: str = os.getenv("POSTGRES_DB", "")
