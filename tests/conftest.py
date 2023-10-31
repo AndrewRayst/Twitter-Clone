@@ -40,7 +40,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
         yield async_client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 async def async_session() -> AsyncGenerator[AsyncSession, None]:
     async with session_maker() as session:
         yield session
@@ -58,23 +58,19 @@ async def users() -> TUsersTest:
         UserTestDataClass(),
     )
 
+    instances: list[UserModel] = list()
+    # create users for testing
+    for i_user in users:
+        instances.append(i_user.get_instance())
+
     async with session_maker() as session:
-        # create users for testing
-        user_1 = UserModel(**users[0].__dict__())
-        user_2 = UserModel(**users[1].__dict__())
-        user_3 = UserModel(**users[2].__dict__())
-
         # add users to db
-        session.add(user_1)
-        session.add(user_2)
-        session.add(user_3)
-
+        session.add_all(instances)
         await session.flush()
 
         # save id
-        users[0].id = user_1.id
-        users[1].id = user_2.id
-        users[2].id = user_3.id
+        for i_index, i_user in enumerate(users):
+            i_user.id = instances[i_index].id
 
         await session.commit()
 
