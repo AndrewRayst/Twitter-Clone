@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from fastapi import FastAPI
 import sentry_sdk
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
