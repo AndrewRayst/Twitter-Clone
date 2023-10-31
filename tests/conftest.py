@@ -42,6 +42,10 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 
 @pytest.fixture(scope="session")
 async def async_session() -> AsyncGenerator[AsyncSession, None]:
+    """
+    fixture for async connecting to the database
+    :return: async session
+    """
     async with session_maker() as session:
         yield session
 
