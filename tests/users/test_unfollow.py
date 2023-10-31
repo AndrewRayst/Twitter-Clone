@@ -49,6 +49,7 @@ async def test_unfollow_with_correct_data(
     """
     Test to unfollow a user
     :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
     :param followed_users: generated API keys for two users.
     :return: None
     """

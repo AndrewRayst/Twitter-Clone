@@ -85,6 +85,7 @@ async def test_follow_with_correct_data(
     """
     Test to follow a user
     :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
     :param users: generated API keys for three users.
     :return: None
     """
@@ -115,6 +116,7 @@ async def test_follow_twice(
     """
     Test to check the inability to follow twice
     :param async_client: client for requesting.
+    :param async_session: session for async connecting to the database.
     :param users: generated API keys for three users.
     :return: None
     """
