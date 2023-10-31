@@ -20,4 +20,4 @@ COPY src src
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
     then uvicorn src.main:application --host 0.0.0.0 --port 5000; \
-    else uvicorn src.main:application  --host 0.0.0.0 --port 5000; fi
+    else gunicorn src.main:application --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000; fi
