@@ -11,6 +11,11 @@ STATIC_FILES_PATH: str = os.getenv("FASTAPI_STATIC_FILES_PATH", "static")
 
 SENTRY_DNS: str = os.getenv("SENTRY_DNS", "")
 
+YANDEX_S3_ACCESS_KEY_ID: str = os.getenv("YANDEX_S3_ACCESS_KEY_ID", "")
+YANDEX_S3_SECRET_ACCESS_KEY: str = os.getenv("YANDEX_S3_SECRET_ACCESS_KEY", "")
+YANDEX_S3_ENDPOINT: str = os.getenv("YANDEX_S3_ENDPOINT", "")
+YANDEX_S3_REGION_NAME: str = os.getenv("YANDEX_S3_REGION_NAME", "")
+
 POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
 POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
 POSTGRES_DB: str = os.getenv("POSTGRES_DB", "")
