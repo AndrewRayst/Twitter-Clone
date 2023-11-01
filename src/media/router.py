@@ -8,7 +8,7 @@ from src.exceptions import ExistError
 from src.media.config import LOADING_IMAGE_SRC
 from src.media.schemas import SuccessMediaResponseSchema
 from src.media.service import add_image_media
-from src.media.tasks import process_image
+from src.media.tasks import load_image
 from src.users.models import UserModel
 from src.users.service import check_and_get_user_by_api_key
 from src.utils import return_server_exception, return_user_exception
@@ -48,7 +48,7 @@ async def _add_media(
 
         logger.info("creating the process of the image")
         await logger.complete()
-        process_image.delay(image_id=image_id, image_data=file.file.read())
+        load_image.delay(image_id=image_id, image_data=file.file.read())
 
         return {"result": True, "media_id": image_id}
 

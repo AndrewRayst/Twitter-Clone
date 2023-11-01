@@ -1,6 +1,7 @@
 import hashlib
 import random
 import string
+import uuid
 
 from loguru import logger
 from starlette.responses import JSONResponse
@@ -17,6 +18,17 @@ def get_random_string(length: int = 10) -> str:
         raise ValueError("length must be grater then 0")
 
     return "".join(random.choices(population=string.ascii_letters, k=length))
+
+
+def get_unique_filename(filetype: str | None = None) -> str:
+    """
+    util for creating unique filename
+    :param filetype: jpg, png, html and etc...
+    :return: filename
+    """
+    if filetype:
+        return get_random_string() + str(uuid.uuid4()) + "." + filetype
+    return get_random_string() + str(uuid.uuid4())
 
 
 async def return_user_exception(
