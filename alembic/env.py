@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+from src.config import DEBUG, ALEMBIC_DB_URL_DEV, ALEMBIC_DB_URL_PROD
 from src.database.models import BaseModel
 from src.users.models import UserModel, UserFollowerModel
 from src.media.models import MediaModel
@@ -16,9 +16,7 @@ from src.tweets.models import TweetModel, TweetLikeModel
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, "POSTGRES_USER", POSTGRES_USER)
-config.set_section_option(section, "POSTGRES_PASSWORD", POSTGRES_PASSWORD)
-config.set_section_option(section, "POSTGRES_DB", POSTGRES_DB)
+config.set_section_option(section, "DB_URL", ALEMBIC_DB_URL_DEV if DEBUG else ALEMBIC_DB_URL_PROD)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
