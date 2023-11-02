@@ -33,7 +33,7 @@ def get_unique_filename(filetype: str | None = None) -> str:
     return get_random_string() + str(uuid.uuid4())
 
 
-def api_key_param(api_key: Annotated[str | None, Header()] = None) -> str | None:
+def api_key_param(api_key: Annotated[str, Header()]) -> str:
     return api_key
 
 
