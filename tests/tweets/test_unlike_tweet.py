@@ -17,8 +17,8 @@ async def test_unlike_with_wrong_user(
     """
     response = await async_client.delete(
         f"tweets/{liked_tweet.id}/likes",
-        params={
-            "api_key": ""
+        headers={
+            "Api-Key": ""
         }
     )
 
@@ -50,8 +50,8 @@ async def test_unlike_with_wrong_tweet_id(
     """
     response = await async_client.delete(
         "tweets/0/likes",
-        params={
-            "api_key": users[0].api_key
+        headers={
+            "Api-Key": users[0].api_key
         }
     )
 
@@ -75,8 +75,8 @@ async def test_unlike_with_correct_data(
     """
     response = await async_client.delete(
         f"tweets/{liked_tweet.id}/likes",
-        params={
-            "api_key": users[0].api_key
+        headers={
+            "Api-Key": users[0].api_key
         }
     )
 

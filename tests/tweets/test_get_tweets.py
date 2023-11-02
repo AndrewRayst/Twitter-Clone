@@ -17,11 +17,11 @@ async def test_get_5_tweets_with_correct_data(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": 5,
-            "offset": 0,
-        }
+            "offset": 1,
+        },
     )
 
     assert response.status_code == 200
@@ -42,7 +42,7 @@ async def test_get_tweets_without_user(async_client: AsyncClient) -> None:
         "tweets/",
         params={
             "limit": 10,
-            "offset": 0,
+            "offset": 1,
         }
     )
 
@@ -57,11 +57,11 @@ async def test_get_tweets_without_existing_user(async_client: AsyncClient) -> No
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": ""},
         params={
-            "api_key": "",
             "limit": 10,
-            "offset": 0,
-        }
+            "offset": 1,
+        },
     )
 
     assert response.status_code == 400
@@ -82,17 +82,13 @@ async def test_get_tweets_without_limit_and_offset(
     """
     response = await async_client.get(
         "tweets/",
-        params={
-            "api_key": users[0].api_key,
+        headers={
+            "Api-Key": users[0].api_key,
         }
     )
 
     assert response.status_code == 200
-
-    response_json: dict = response.json()
-
-    assert response_json.get("result") is True
-    assert len(response_json.get("tweets")) == 10
+    assert response.json().get("result") is True
 
 
 async def test_get_tweets_with_negative_limit(
@@ -109,11 +105,11 @@ async def test_get_tweets_with_negative_limit(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": -1,
-            "offset": 0,
-        }
+            "offset": 1,
+        },
     )
 
     assert response.status_code == 400
@@ -134,24 +130,24 @@ async def test_get_tweets_with_limit_greater_20(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": 21,
-            "offset": 0,
-        }
+            "offset": 1,
+        },
     )
 
     assert response.status_code == 400
     assert response.json().get("result") is False
 
 
-async def test_get_tweets_with_negative_offset(
+async def test_get_tweets_with_offset_less_than_1(
     tweets: list[TweetTestDataClass],
     users: TUsersTest,
     async_client: AsyncClient
 ) -> None:
     """
-    Test for checking the endpoint for retrieving tweets with negative offset.
+    Test for checking the endpoint for retrieving tweets with offset less than 1.
     :param tweets: tweets which added in database
     :param users: users who added in database
     :param async_client: client for requesting.
@@ -159,11 +155,11 @@ async def test_get_tweets_with_negative_offset(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": 10,
-            "offset": -1,
-        }
+            "offset": 0,
+        },
     )
 
     assert response.status_code == 400
@@ -184,11 +180,11 @@ async def test_get_tweets_with_correct_data_page_1(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": 10,
-            "offset": 0,
-        }
+            "offset": 1,
+        },
     )
 
     assert response.status_code == 200
@@ -233,11 +229,11 @@ async def test_get_tweets_with_correct_data_page_2(
     """
     response = await async_client.get(
         "tweets/",
+        headers={"Api-Key": users[0].api_key},
         params={
-            "api_key": users[0].api_key,
             "limit": 10,
-            "offset": 10,
-        }
+            "offset": 2,
+        },
     )
 
     assert response.status_code == 200

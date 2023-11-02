@@ -38,8 +38,8 @@ async def test_adding_image_without_existing_user_api_key(
     """
     response = await async_client.post(
         f"medias/",
-        params={
-            "api_key": "",
+        headers={
+            "Api-Key": "",
         },
         files={
             "file": image_data,
@@ -66,8 +66,8 @@ async def test_adding_image_with_correct_data(
     """
     response = await async_client.post(
         f"medias/",
-        params={
-            "api_key": users[0].api_key
+        headers={
+            "Api-Key": users[0].api_key
         },
         files={
             "file": image_data
