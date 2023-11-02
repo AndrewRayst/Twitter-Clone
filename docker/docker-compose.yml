@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   database:
+    container_name: postgres
     image: postgres:16
     restart: always
     volumes:
@@ -12,6 +13,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pg_admin
     restart: always
     ports:
       - "2345:80"
@@ -36,6 +38,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     restart: always
+    container_name: fast_api
     stop_signal: SIGKILL
     volumes:
       - ../logs/:/logs
@@ -51,7 +54,7 @@ services:
     container_name: web
     image: nginx:alpine
     ports:
-      - "8000:80"
+      - "80:80"
     depends_on:
       - server_app
     restart: always
@@ -111,4 +114,4 @@ services:
       - ../environments/.env
     depends_on:
       - prometheus
-    user: "1000"
+    user: "0"

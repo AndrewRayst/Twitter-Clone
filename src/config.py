@@ -33,6 +33,22 @@ DB_URL_TEST: str = "postgresql+asyncpg://{}:{}@{}:5432/{}".format(
     POSTGRES_DB,
 )
 
+ALEMBIC_DB_URL_DEV = (
+    "postgresql+asyncpg://{}:{}@0.0.0.0:5432/{}?async_fallback=True"
+).format(
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_DB,
+)
+
+ALEMBIC_DB_URL_PROD = (
+    "postgresql+asyncpg://{}:{}@database:5432/{}?async_fallback=True"
+).format(
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_DB,
+)
+
 
 REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT: str = os.getenv("REDIS_MASTER_PORT_NUMBER", "6379")
