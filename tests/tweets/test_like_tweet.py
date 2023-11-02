@@ -17,8 +17,8 @@ async def test_like_with_wrong_user(
     """
     response = await async_client.post(
         f"tweets/{tweet.id}/likes",
-        headers={
-            "Api-Key": ""
+        params={
+            "api_key": ""
         }
     )
 
@@ -50,8 +50,8 @@ async def test_like_with_wrong_tweet_id(
     """
     response = await async_client.post(
         "tweets/0/likes",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
@@ -75,8 +75,8 @@ async def test_like_with_correct_data(
     """
     response = await async_client.post(
         f"tweets/{tweet.id}/likes",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
@@ -109,8 +109,8 @@ async def test_like_twice(
     """
     response = await async_client.post(
         f"tweets/{tweet.id}/likes",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 

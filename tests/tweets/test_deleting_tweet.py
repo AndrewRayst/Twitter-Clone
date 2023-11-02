@@ -34,7 +34,7 @@ async def test_delete_tweet_without_existing_user(
     """
     response = await async_client.delete(
         f"tweets/{tweet.id}",
-        headers={"Api-Key": ""},
+        params={"api_key": ""},
     )
 
     assert response.status_code == 400
@@ -56,7 +56,7 @@ async def test_delete_tweet_with_correct_data(
     """
     response = await async_client.delete(
         f"tweets/{tweet.id}",
-        headers={"Api-Key": tweet.user.api_key},
+        params={"api_key": tweet.user.api_key},
     )
 
     assert response.status_code == 200

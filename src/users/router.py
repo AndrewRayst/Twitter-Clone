@@ -17,7 +17,6 @@ from src.users.service import (
     unfollow_user,
 )
 from src.utils import (
-    api_key_param,
     return_custom_exception,
     return_server_exception,
     return_user_exception,
@@ -31,7 +30,7 @@ router: APIRouter = APIRouter(
 
 @router.get("/me", response_model=SuccessResponseUserSchema, status_code=200)
 async def _get_my_profile(
-    api_key: str = Depends(api_key_param), session: AsyncSession = Depends(get_session)
+    api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for retrieving your own profile
@@ -53,9 +52,7 @@ async def _get_my_profile(
 
 @router.get("/{user_id}", response_model=SuccessResponseUserSchema, status_code=200)
 async def _get_user_profile(
-    user_id: int,
-    api_key: str = Depends(api_key_param),
-    session: AsyncSession = Depends(get_session),
+    user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for retrieving the user profile
@@ -86,9 +83,7 @@ async def _get_user_profile(
 
 @router.post("/{user_id}/follow", response_model=SuccessResponseSchema, status_code=201)
 async def _follow(
-    user_id: int,
-    api_key: str = Depends(api_key_param),
-    session: AsyncSession = Depends(get_session),
+    user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for following user
@@ -127,9 +122,7 @@ async def _follow(
     "/{user_id}/unfollow", response_model=SuccessResponseSchema, status_code=200
 )
 async def _unfollow(
-    user_id: int,
-    api_key: str = Depends(api_key_param),
-    session: AsyncSession = Depends(get_session),
+    user_id: int, api_key: str, session: AsyncSession = Depends(get_session)
 ) -> dict | JSONResponse:
     """
     The endpoint for unfollowing user
