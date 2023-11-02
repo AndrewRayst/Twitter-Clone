@@ -71,17 +71,6 @@ async def get_tweets(
     # getting user following ids
     user_following_ids: list[int] = [i_following.id for i_following in user.following]
 
-    # Subquery for getting count of likes
-    likes_count_subquery: Subquery = (
-        select(
-            TweetModel.id.label("tweet_id"),
-            func.count(TweetLikeModel.id).label("likes_count"),
-        )
-        .outerjoin(TweetLikeModel)
-        .group_by(TweetModel.id)
-        .subquery("likes_count_subquery")
-    )
-
     # Subquery for getting tweets
     tweets_subquery: Subquery = (
         select(TweetModel.content, TweetModel.id.label("id"))
@@ -101,16 +90,37 @@ async def get_tweets(
             )
         )
         # offset and limit tweets
-        .offset(offset=offset)
-        .limit(limit=limit)
         .subquery()
+    )
+
+    subquery: Subquery
+    if limit and offset:
+        subquery = (
+            select(tweets_subquery)
+            .offset(offset=(offset - 1) * limit)
+            .limit(limit=limit)
+            .subquery()
+        )
+    else:
+        subquery = tweets_subquery
+
+    # Subquery for getting count of likes
+    likes_count_subquery: Subquery = (
+        select(
+            TweetModel.id.label("tweet_id"),
+            func.count(TweetLikeModel.id).label("likes_count"),
+        )
+        .outerjoin(TweetLikeModel)
+        .join(subquery, TweetModel.id == subquery.c.id)
+        .group_by(TweetModel.id)
+        .subquery("likes_count_subquery")
     )
 
     # Query for getting tweets and order by likes
     query: Select = (
         select(TweetModel)
         # adding tweets
-        .join(tweets_subquery, tweets_subquery.c.id == TweetModel.id)
+        .join(subquery, subquery.c.id == TweetModel.id)
         # adding the number of likes for sorting
         .join(likes_count_subquery, TweetModel.id == likes_count_subquery.c.tweet_id)
         # sorting by number of likes. from most to least.

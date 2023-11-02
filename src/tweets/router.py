@@ -108,9 +108,9 @@ async def _delete_tweet(
 
 @router.get("/", response_model=SuccessTweetsResponseSchema, status_code=200)
 async def _get_tweets(
+    limit: int | None = None,
+    offset: int | None = None,
     api_key: str = Depends(api_key_param),
-    limit: int = 10,
-    offset: int = 0,
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
@@ -122,13 +122,13 @@ async def _get_tweets(
     """
     try:
         # Checking limit and offset
-        if limit <= 0:
+        if type(limit) is int and limit <= 0:
             raise ValueError("the limit must be greater than 0.")
-        elif limit > 20:
+        elif type(limit) is int and limit > 20:
             raise ValueError("the limit must be equal to or less than 20.")
 
-        if offset < 0:
-            raise ValueError("the offset must be positive number.")
+        if type(offset) is int and offset <= 0:
+            raise ValueError("the offset must be greater than 0.")
 
         logger.info("getting tweets")
         await logger.complete()
