@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey, Integer, UniqueConstraint
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Integer, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, MappedColumn, relationship
 
 from src.database.models import BaseModel
@@ -13,6 +15,7 @@ class TweetModel(BaseModel):
         Integer(), ForeignKey(UserModel.id, ondelete="CASCADE")
     )
     content: Mapped[str]
+    create_at: Mapped[datetime] = MappedColumn(DateTime, default=func.now())
 
     media: Mapped[list[MediaModel]] = relationship(
         argument=MediaModel,

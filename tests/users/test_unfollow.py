@@ -17,8 +17,8 @@ async def test_unfollow_with_wrong_api_key(
     """
     response = await async_client.post(
         url=f"users/{followed_users[1].id}/unfollow",
-        params={
-            "api_key": ""
+        headers={
+            "Api-Key": ""
         }
     )
 
@@ -55,8 +55,8 @@ async def test_unfollow_with_correct_data(
     """
     response = await async_client.post(
         url=f"users/{followed_users[1].id}/unfollow",
-        params={
-            "api_key": followed_users[0].api_key
+        headers={
+            "Api-Key": followed_users[0].api_key
         }
     )
 
