@@ -25,6 +25,7 @@ from src.tweets.service import (
 from src.users.models import UserModel
 from src.users.service import check_and_get_user_by_api_key
 from src.utils import (
+    api_key_param,
     return_custom_exception,
     return_server_exception,
     return_user_exception,
@@ -36,7 +37,7 @@ router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
 @router.post("/", response_model=SuccessTweetPostResponseSchema, status_code=201)
 async def _add_tweet(
     tweet_json: TweetSchema,
-    api_key: str,
+    api_key: str = Depends(api_key_param),
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
@@ -80,7 +81,7 @@ async def _add_tweet(
 @router.delete("/{tweet_id}", response_model=SuccessResponseSchema, status_code=200)
 async def _delete_tweet(
     tweet_id: int,
-    api_key: str,
+    api_key: str = Depends(api_key_param),
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
@@ -108,9 +109,9 @@ async def _delete_tweet(
 
 @router.get("/", response_model=SuccessTweetsResponseSchema, status_code=200)
 async def _get_tweets(
-    api_key: str,
-    limit: int = 10,
-    offset: int = 0,
+    limit: int | None = None,
+    offset: int | None = None,
+    api_key: str = Depends(api_key_param),
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
@@ -122,13 +123,13 @@ async def _get_tweets(
     """
     try:
         # Checking limit and offset
-        if limit <= 0:
+        if type(limit) is int and limit <= 0:
             raise ValueError("the limit must be greater than 0.")
-        elif limit > 20:
+        elif type(limit) is int and limit > 20:
             raise ValueError("the limit must be equal to or less than 20.")
 
-        if offset < 0:
-            raise ValueError("the offset must be positive number.")
+        if type(offset) is int and offset <= 0:
+            raise ValueError("the offset must be greater than 0.")
 
         logger.info("getting tweets")
         await logger.complete()
@@ -152,7 +153,9 @@ async def _get_tweets(
 
 @router.post("/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=201)
 async def _like_tweet(
-    tweet_id: int, api_key: str, session: AsyncSession = Depends(get_session)
+    tweet_id: int,
+    api_key: str = Depends(api_key_param),
+    session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
     The endpoint for liking the tweet by id.
@@ -195,7 +198,9 @@ async def _like_tweet(
     "/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=200
 )
 async def _unlike_tweet(
-    tweet_id: int, api_key: str, session: AsyncSession = Depends(get_session)
+    tweet_id: int,
+    api_key: str = Depends(api_key_param),
+    session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
     The endpoint for unliking the tweet by id.

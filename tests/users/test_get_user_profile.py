@@ -26,8 +26,8 @@ async def test_get_user_profile_without_existing_api_key(
     """
     response = await async_client.get(
         f"users/{followed_users[1].id}",
-        params={
-            "api_key": ""
+        headers={
+            "Api-Key": ""
         },
     )
 
@@ -47,8 +47,8 @@ async def test_get_user_profile(
     """
     response = await async_client.get(
         f"users/{followed_users[1].id}",
-        params={
-            "api_key": followed_users[0].api_key
+        headers={
+            "Api-Key": followed_users[0].api_key
         }
     )
 
