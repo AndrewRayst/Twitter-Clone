@@ -11,7 +11,7 @@ from src.media.service import add_image_media
 from src.media.tasks import load_image
 from src.users.models import UserModel
 from src.users.service import check_and_get_user_by_api_key
-from src.utils import api_key_param, return_server_exception, return_user_exception
+from src.utils import return_server_exception, return_user_exception
 
 router: APIRouter = APIRouter(
     prefix="/api/medias",
@@ -21,7 +21,7 @@ router: APIRouter = APIRouter(
 
 @router.post("/", response_model=SuccessMediaResponseSchema, status_code=201)
 async def _add_media(
-    api_key: str = Depends(api_key_param),
+    api_key: str,
     file: UploadFile = File(...),
     session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:

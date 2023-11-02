@@ -17,8 +17,8 @@ async def test_follow_yourself(async_client: AsyncClient, users: TUsersTest) -> 
     """
     response = await async_client.post(
         url=f"users/{users[0].id}/follow",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
@@ -37,8 +37,8 @@ async def test_follow_non_existent_user(async_client: AsyncClient, users: TUsers
     """
     response = await async_client.post(
         url="users/404040404/follow",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
@@ -57,8 +57,8 @@ async def test_follow_with_wrong_api_key(async_client: AsyncClient, users: TUser
     """
     response = await async_client.post(
         url=f"users/{users[1].id}/follow",
-        headers={
-            "Api-Key": ""
+        params={
+            "api_key": ""
         }
     )
 
@@ -91,8 +91,8 @@ async def test_follow_with_correct_data(
     """
     response = await async_client.post(
         url=f"users/{users[1].id}/follow",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
@@ -122,8 +122,8 @@ async def test_follow_twice(
     """
     response = await async_client.post(
         url=f"users/{users[1].id}/follow",
-        headers={
-            "Api-Key": users[0].api_key
+        params={
+            "api_key": users[0].api_key
         }
     )
 
