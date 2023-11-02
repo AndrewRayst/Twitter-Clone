@@ -105,8 +105,10 @@ async def tweets(
         for i_tweet in tweets
     ]
 
-    async_session.add_all(tweet_instances)
-    await async_session.flush()
+    # add only one at a time!!!
+    for i_tweet in tweet_instances:
+        async_session.add(i_tweet)
+        await async_session.flush()
 
     # updating id for tweets
     for i_index, i_tweet in enumerate(tweets):

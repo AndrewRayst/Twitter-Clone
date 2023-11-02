@@ -24,6 +24,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('content', sa.String(), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('create_at', sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
