@@ -25,9 +25,10 @@ from src.tweets.service import (
 from src.users.models import UserModel
 from src.users.service import check_and_get_user_by_api_key
 from src.utils import (
+    api_key_param,
     return_custom_exception,
     return_server_exception,
-    return_user_exception, api_key_param,
+    return_user_exception,
 )
 
 router: APIRouter = APIRouter(prefix="/api/tweets", tags=["Tweets"])
@@ -152,7 +153,9 @@ async def _get_tweets(
 
 @router.post("/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=201)
 async def _like_tweet(
-    tweet_id: int, api_key: str = Depends(api_key_param), session: AsyncSession = Depends(get_session)
+    tweet_id: int,
+    api_key: str = Depends(api_key_param),
+    session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
     The endpoint for liking the tweet by id.
@@ -195,7 +198,9 @@ async def _like_tweet(
     "/{tweet_id}/likes", response_model=SuccessResponseSchema, status_code=200
 )
 async def _unlike_tweet(
-    tweet_id: int, api_key: str = Depends(api_key_param), session: AsyncSession = Depends(get_session)
+    tweet_id: int,
+    api_key: str = Depends(api_key_param),
+    session: AsyncSession = Depends(get_session),
 ) -> dict | JSONResponse:
     """
     The endpoint for unliking the tweet by id.
