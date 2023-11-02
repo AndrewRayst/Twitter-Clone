@@ -45,8 +45,8 @@ async def check_and_get_tweet(
 async def get_tweets(
     session: AsyncSession,
     api_key: str,
-    limit: int,
-    offset: int,
+    limit: int | None,
+    offset: int | None,
 ) -> list[TweetModel] | Sequence[TweetModel]:
     """
     The service for adding tweet in database
@@ -125,6 +125,8 @@ async def get_tweets(
         .join(likes_count_subquery, TweetModel.id == likes_count_subquery.c.tweet_id)
         # sorting by number of likes. from most to least.
         .order_by(desc(likes_count_subquery.c.likes_count))
+        # sorting by create datetime.
+        .order_by(TweetModel.create_at.desc())
     )
 
     # getting tweets
