@@ -1,0 +1,4 @@
+[flake8]
+extend-ignore = B008, VNE003
+max-line-length = 88
+max-complexity = 8
