@@ -2,7 +2,8 @@
 /.mypy_cache/
 
 /.idea/
-/environments/
+/environments/.env
+/environments/.env.flower
 .env
 
 /logs/
