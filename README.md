@@ -9,8 +9,6 @@
 
 ---
 
-[repository](https://gitlab.skillbox.ru/telitsin_andrei/python_advanced_diploma)
-
 [kanban доска](https://miro.com/app/board/uXjVNfT-t9o=/)
 
 [API schema](https://miro.com/app/board/uXjVNfNic6Y=/)
@@ -34,7 +32,7 @@
 1. В .env поставить FASTAPI_DEBUG=False
 2. Запустить docker compose
 3. Выполнить команду в контейнере fastaAPI:
-   * sudo docker fast_api exec alembic upgrade head
+   * sudo docker exec fast_api alembic upgrade head
 
 ## testing
 1. В .env поставить FASTAPI_DEBUG=False, TESTING=True

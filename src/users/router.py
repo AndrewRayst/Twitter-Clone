@@ -123,8 +123,8 @@ async def _follow(
         return await return_server_exception(exception=exc)
 
 
-@router.post(
-    "/{user_id}/unfollow", response_model=SuccessResponseSchema, status_code=200
+@router.delete(
+    "/{user_id}/follow", response_model=SuccessResponseSchema, status_code=200
 )
 async def _unfollow(
     user_id: int,
@@ -133,7 +133,7 @@ async def _unfollow(
 ) -> dict | JSONResponse:
     """
     The endpoint for unfollowing user
-    :param user_id: id of the user to follow
+    :param user_id: id of the user to unfollow
     :param api_key: API key of the user who wants to unfollow
     """
     try:

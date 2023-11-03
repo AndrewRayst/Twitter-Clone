@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -229,3 +229,13 @@ async def _unlike_tweet(
         return await return_user_exception(exception=exc)
     except Exception as exc:
         return await return_server_exception(exception=exc)
+
+
+@router.delete("/{user_id}/follow")
+async def _unfollow(user_id: int) -> RedirectResponse:
+    """
+    The endpoint for redirecting to the right endpoint for unfollowing user.
+    :param user_id: id of the user to unfollow
+    :return: redirect
+    """
+    return RedirectResponse(f"/api/users/{user_id}/follow")
