@@ -34,7 +34,7 @@
 1. В .env поставить FASTAPI_DEBUG=False
 2. Запустить docker compose
 3. Выполнить команду в контейнере fastaAPI:
-   * sudo docker fast_api exec alembic upgrade head
+   * sudo docker exec fast_api alembic upgrade head
 
 ## testing
 1. В .env поставить FASTAPI_DEBUG=False, TESTING=True
