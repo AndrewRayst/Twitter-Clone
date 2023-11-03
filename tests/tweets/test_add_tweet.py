@@ -27,7 +27,7 @@ async def test_add_tweet_with_another_user(
     """
     response = await async_client.post(
         "tweets/",
-        params={"api_key": users[1].api_key},
+        headers={"Api-Key": users[1].api_key},
         json={
             "tweet_data": tweet_data.content,
             "tweet_media_ids": image_ids,
@@ -89,7 +89,7 @@ async def test_add_tweet_without_existing_user(
     """
     response = await async_client.post(
         "tweets/",
-        params={"api_key": ""},
+        headers={"Api-Key": ""},
         json={
             "tweet_data": tweet_data.content,
             "tweet_media_ids": image_ids,
@@ -116,7 +116,7 @@ async def test_add_tweet_without_images(
     """
     response = await async_client.post(
         "tweets/",
-        params={"api_key": tweet_data.user.api_key},
+        headers={"Api-Key": tweet_data.user.api_key},
         json={
             "tweet_data": tweet_data.content,
             "tweet_media_ids": [],
@@ -172,7 +172,7 @@ async def test_add_tweet_with_correct_data(
     """
     response = await async_client.post(
         "tweets/",
-        params={"api_key": tweet_data.user.api_key},
+        headers={"Api-Key": tweet_data.user.api_key},
         json={
             "tweet_data": tweet_data.content,
             "tweet_media_ids": image_ids,

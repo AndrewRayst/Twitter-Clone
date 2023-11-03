@@ -2,6 +2,7 @@ from datetime import datetime
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from loguru import logger
@@ -50,6 +51,24 @@ application.include_router(tweets_router)
 
 
 metrics_instrument = Instrumentator().instrument(application)
+
+
+application.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:80",
+        "http://localhost:9090",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Language",
+        "Content-Type",
+        "Api-Key",
+    ],
+)
 
 
 @application.on_event("startup")

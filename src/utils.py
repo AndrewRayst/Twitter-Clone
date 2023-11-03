@@ -2,7 +2,9 @@ import hashlib
 import random
 import string
 import uuid
+from typing import Annotated
 
+from fastapi import Header
 from loguru import logger
 from starlette.responses import JSONResponse
 
@@ -29,6 +31,10 @@ def get_unique_filename(filetype: str | None = None) -> str:
     if filetype:
         return get_random_string() + str(uuid.uuid4()) + "." + filetype
     return get_random_string() + str(uuid.uuid4())
+
+
+def api_key_param(api_key: Annotated[str, Header()]) -> str:
+    return api_key
 
 
 async def return_user_exception(
