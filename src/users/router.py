@@ -133,7 +133,7 @@ async def _unfollow(
 ) -> dict | JSONResponse:
     """
     The endpoint for unfollowing user
-    :param user_id: id of the user to follow
+    :param user_id: id of the user to unfollow
     :param api_key: API key of the user who wants to unfollow
     """
     try:
