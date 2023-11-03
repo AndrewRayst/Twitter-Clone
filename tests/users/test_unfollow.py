@@ -15,8 +15,8 @@ async def test_unfollow_with_wrong_api_key(
     :param followed_users: generated API keys for three users.
     :return: None
     """
-    response = await async_client.post(
-        url=f"users/{followed_users[1].id}/unfollow",
+    response = await async_client.delete(
+        url=f"users/{followed_users[1].id}/follow",
         headers={
             "Api-Key": ""
         }
@@ -37,8 +37,8 @@ async def test_unfollow_without_api_key(
     :param followed_users: generated API keys for two users.
     :return: None
     """
-    response = await async_client.post(
-        url=f"users/{followed_users[1].id}/unfollow"
+    response = await async_client.delete(
+        url=f"users/{followed_users[1].id}/follow"
     )
     assert response.status_code == 422
 
@@ -53,8 +53,8 @@ async def test_unfollow_with_correct_data(
     :param followed_users: generated API keys for two users.
     :return: None
     """
-    response = await async_client.post(
-        url=f"users/{followed_users[1].id}/unfollow",
+    response = await async_client.delete(
+        url=f"users/{followed_users[1].id}/follow",
         headers={
             "Api-Key": followed_users[0].api_key
         }

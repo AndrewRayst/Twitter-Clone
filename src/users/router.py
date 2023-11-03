@@ -123,7 +123,7 @@ async def _follow(
         return await return_server_exception(exception=exc)
 
 
-@router.post("/{user_id}/follow", response_model=SuccessResponseSchema, status_code=200)
+@router.delete("/{user_id}/follow", response_model=SuccessResponseSchema, status_code=200)
 async def _unfollow(
     user_id: int,
     api_key: str = Depends(api_key_param),
