@@ -9,8 +9,6 @@
 
 ---
 
-[repository](https://gitlab.skillbox.ru/telitsin_andrei/python_advanced_diploma)
-
 [kanban доска](https://miro.com/app/board/uXjVNfT-t9o=/)
 
 [API schema](https://miro.com/app/board/uXjVNfNic6Y=/)
