@@ -9,3 +9,4 @@
 /logs/
 /database_data/
 /grafana/data/
+/certbot/

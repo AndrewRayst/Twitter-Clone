@@ -1,0 +1,127 @@
+version: "3.9"
+services:
+  database:
+    container_name: postgres
+    image: postgres:16
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../environments/.env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pg_admin
+    restart: always
+    ports:
+      - "2345:80"
+    env_file:
+      - ../environments/.env
+    depends_on:
+      - database
+
+  redis:
+    image: redis:7
+    container_name: redis_app
+    restart: always
+    stop_signal: SIGKILL
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    env_file:
+      - ../environments/.env
+    ports:
+      - "6379:6379"
+
+  server_app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    restart: always
+    container_name: fast_api
+    stop_signal: SIGKILL
+    volumes:
+      - ../logs/:/logs
+    ports:
+      - "5000:5000"
+    env_file:
+      - ../environments/.env
+    depends_on:
+      - database
+      - redis
+
+  web:
+    container_name: web
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - server_app
+    restart: always
+    volumes:
+      - ../configs/nginx.config.conf:/etc/nginx/nginx.conf
+      - ../static:/static
+      - ../certbot/www:/var/www/certbot/:ro
+      - ../certbot/conf:/etc/nginx/ssl/:ro
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ../certbot/www:/var/www/certbot/:rw
+      - ../certbot/conf:/etc/letsencrypt/:rw
+    depends_on:
+      - web
+
+  celery:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: celery_app
+    command: celery --app=src.celery_init:celery_app worker --loglevel=info --logfile=../logs/celery.log
+    volumes:
+      - ../logs/:/logs
+    env_file:
+      - ../environments/.env
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: flower_app
+    command: celery --app=src.celery_init:celery_app flower
+    env_file:
+      - ../environments/.env.flower
+    depends_on:
+      - celery
+      - redis
+    ports:
+      - "5555:5555"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../configs/prometheus.config.yml:/etc/prometheus/prometheus.config.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.config.yml'
+    depends_on:
+      - server_app
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../grafana/data:/var/lib/grafana
+    env_file:
+      - ../environments/.env
+    depends_on:
+      - prometheus
+    user: "0"
