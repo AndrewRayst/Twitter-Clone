@@ -10,8 +10,10 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 
 from src import config
-from src.database.core import shutdown_db
+from src.database.core import engine, shutdown_db
+from src.database.models import BaseModel
 from src.media.router import router as media_router
+from src.test_data import load_test_data
 from src.tweets.router import router as tweets_router
 from src.users.router import router as users_router
 
@@ -73,11 +75,21 @@ application.add_middleware(
 
 @application.on_event("startup")
 async def startup() -> None:
+    logger.debug("starting...")
+    await logger.complete()
+
+    async with engine.begin() as connect:
+        await connect.run_sync(BaseModel.metadata.drop_all)
+    async with engine.begin() as connect:
+        await connect.run_sync(BaseModel.metadata.create_all)
+
     metrics_instrument.expose(application)
 
     redis_url = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
     redis = aioredis.from_url(redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
+    await load_test_data()
 
 
 @application.on_event("shutdown")

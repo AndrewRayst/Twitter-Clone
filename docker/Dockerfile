@@ -18,5 +18,5 @@ RUN python -m pip install --no-cache-dir poetry==1.4.2 \
 COPY src src
 
 CMD if [ "$FASTAPI_DEBUG" = "TRUE" ]; \
-    then uvicorn src.main:application --host 0.0.0.0 --port 5000; \
-    else gunicorn src.main:application --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000; fi
+    then uvicorn src.main:application --host 0.0.0.0 --port 5000  --workers 1; \
+    else gunicorn src.main:application --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000; fi
