@@ -53,24 +53,12 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - server_app
     restart: always
     volumes:
       - ../configs/nginx.config.conf:/etc/nginx/nginx.conf
       - ../static:/static
-      - ../certbot/www:/var/www/certbot/:ro
-      - ../certbot/conf:/etc/nginx/ssl/:ro
-
-  certbot:
-    image: certbot/certbot:latest
-    container_name: certbot
-    volumes:
-      - ../certbot/www:/var/www/certbot/:rw
-      - ../certbot/conf:/etc/letsencrypt/:rw
-    depends_on:
-      - web
 
   celery:
     build:
