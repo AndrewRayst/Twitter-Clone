@@ -76,13 +76,6 @@ application.add_middleware(
 @application.on_event("startup")
 async def startup() -> None:
     logger.debug("starting...")
-    await logger.complete()
-
-    async with engine.begin() as connect:
-        await connect.run_sync(BaseModel.metadata.drop_all)
-    async with engine.begin() as connect:
-        await connect.run_sync(BaseModel.metadata.create_all)
-
     metrics_instrument.expose(application)
 
     redis_url = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
