@@ -13,7 +13,6 @@ from src import config
 from src.database.core import engine, shutdown_db
 from src.database.models import BaseModel
 from src.media.router import router as media_router
-from src.test_data import load_test_data
 from src.tweets.router import router as tweets_router
 from src.users.router import router as users_router
 
@@ -81,9 +80,6 @@ async def startup() -> None:
     redis_url = config.REDIS_URL_TEST if config.TESTING else config.REDIS_URL
     redis = aioredis.from_url(redis_url, encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-
-    await load_test_data()
-
 
 @application.on_event("shutdown")
 async def _on_shutdown() -> None:
