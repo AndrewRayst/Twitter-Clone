@@ -1,8 +1,8 @@
 # Twitter clone project
 
-[application](http://158.160.29.218/)
+[application](https://rayst.site/)
 
-[docs](http://158.160.29.218/docs)
+[docs](https://rayst.site/docs)
 
 ---
 
