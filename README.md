@@ -15,6 +15,14 @@
 [app schema](https://miro.com/app/board/uXjVNfJlORE=/)
 
 ---
+## Запуск
+* Нужен python 3.10+ и docker
+* Нужно добавить в environments .env и .env.flower:
+  * SENTRY_DNS получить через https://sentry.io/ или развернуть sentry локально
+  * YANDEX_S3_ACCESS_KEY_ID и YANDEX_S3_SECRET_ACCESS_KEY получить через https://cloud.yandex.ru/  
+* В папке docker запустить команду:
+  * для разработки - `sudo docker compose -f docker-compose.dev.yml up --build`
+  * для продакшена - `sudo docker compose up --build -d`
 
 ## migrations
 Если перед этим было проведено тестирование или какие-то таблицы удалялись, то нужно удалить из базы данных таблицу "alembic_version"
