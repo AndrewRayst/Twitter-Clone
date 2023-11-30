@@ -1,5 +1,4 @@
 # Twitter clone project
-Проект для Skillbox
 
 ---
 
