@@ -1,7 +1,5 @@
 # Twitter clone project
 
----
-
 [application](http://158.160.29.218/)
 
 [docs](http://158.160.29.218/docs)
